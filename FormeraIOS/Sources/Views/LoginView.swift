@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct LoginView: View {
-    @EnvironmentObject private var auth: AuthService
+    @Environment(AuthService.self) private var auth
 
     @State private var email = ""
     @State private var password = ""
@@ -10,8 +10,10 @@ struct LoginView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text("Formera")
-                .font(.largeTitle.bold())
+            Image("FormeraLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(height: 54)
 
             VStack(spacing: 12) {
                 TextField("Email", text: $email)
@@ -58,7 +60,7 @@ struct LoginView: View {
 
         do {
             try await auth.login(email: email, password: password)
-        } catch APIError.requestFailed(let code, _) where code == 401 {
+        } catch APIError.requestFailed(let error) where error.status == 401 {
             errorMessage = "Incorrect email or password."
         } catch {
             errorMessage = "Couldn't log in: \(error.localizedDescription)"
@@ -68,5 +70,5 @@ struct LoginView: View {
 
 #Preview {
     LoginView()
-        .environmentObject(AuthService())
+        .environment(AuthService())
 }

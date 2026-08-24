@@ -17,7 +17,6 @@ targets:
     platform: iOS
     sources:
       - path: FormeraIOS/Sources
-    resources:
       - path: FormeraIOS/Resources
     info:
       path: FormeraIOS/Resources/Info.plist

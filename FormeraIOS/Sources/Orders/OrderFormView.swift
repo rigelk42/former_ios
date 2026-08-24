@@ -1,0 +1,231 @@
+import SwiftUI
+
+/// Replaces OrderFormModal.tsx.
+struct OrderFormView: View {
+    var viewModel: OrdersViewModel
+    var onCreated: ((Order) -> Void)?
+
+    private enum CustomerMode: String, CaseIterable, Identifiable {
+        case existing, new
+        var id: String { rawValue }
+        var label: String { self == .existing ? "Existing customer" : "New customer" }
+    }
+
+    private enum AddressMode: String, CaseIterable, Identifiable {
+        case existing, new
+        var id: String { rawValue }
+        var label: String { self == .existing ? "Use existing address" : "Enter new address" }
+    }
+
+    @Environment(\.dismiss) private var dismiss
+    private let apiClient = APIClient()
+
+    @State private var status: OrderStatus = .cashPickup
+    @State private var customerMode: CustomerMode = .existing
+    @State private var customerOptions: [Customer] = []
+    @State private var customersLoading = false
+    @State private var selectedCustomerId: Int?
+    @State private var selectedCustomerDetail: CustomerDetail?
+
+    @State private var newFirstName = ""
+    @State private var newLastName = ""
+    @State private var newEmail = ""
+    @State private var newPhone = ""
+
+    @State private var includeAddress = false
+    @State private var addressMode: AddressMode = .new
+    @State private var selectedAddressId: Int?
+    @State private var address = AddressInput.empty
+
+    @State private var includeDiscount = false
+    @State private var discount = 10
+
+    @State private var productOptions: [Product] = []
+    @State private var productsLoading = false
+    @State private var items: [OrderItemDraft] = [.new()]
+
+    @State private var isSubmitting = false
+    @State private var errorMessage: String?
+
+    private var existingAddresses: [Address] { selectedCustomerDetail?.addresses ?? [] }
+    private var canUseExistingAddress: Bool { customerMode == .existing && !existingAddresses.isEmpty }
+
+    private var isValid: Bool {
+        let customerValid = customerMode == .existing ? selectedCustomerId != nil : !newFirstName.isEmpty
+        let addressValid = !includeAddress
+            || (addressMode == .existing && canUseExistingAddress ? selectedAddressId != nil : true)
+        return customerValid && addressValid && items.allSatisfy(\.isValid)
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                if let errorMessage {
+                    Section { Text(errorMessage).foregroundStyle(.red) }
+                }
+
+                Section("Payment") {
+                    Picker("Payment", selection: $status) {
+                        ForEach(OrderStatus.allCases) { Text($0.label).tag($0) }
+                    }
+                }
+
+                Section("Customer") {
+                    Picker("Customer", selection: $customerMode) {
+                        ForEach(CustomerMode.allCases) { Text($0.label).tag($0) }
+                    }
+                    .pickerStyle(.segmented)
+
+                    if customerMode == .existing {
+                        Picker("Select a customer", selection: $selectedCustomerId) {
+                            Text(customersLoading ? "Loading…" : "Select a customer").tag(Int?.none)
+                            ForEach(customerOptions) { customer in
+                                Text(customer.fullName).tag(Optional(customer.id))
+                            }
+                        }
+                    } else {
+                        TextField("First name", text: $newFirstName).textContentType(.givenName)
+                        TextField("Last name", text: $newLastName).textContentType(.familyName)
+                        TextField("Email", text: $newEmail)
+                            .textContentType(.emailAddress)
+                            .keyboardType(.emailAddress)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                        TextField("Phone", text: $newPhone)
+                            .textContentType(.telephoneNumber)
+                            .keyboardType(.phonePad)
+                    }
+                }
+
+                Section {
+                    Toggle("Add a shipping address", isOn: $includeAddress.animation())
+                    if includeAddress {
+                        if canUseExistingAddress {
+                            Picker("Address", selection: $addressMode) {
+                                ForEach(AddressMode.allCases) { Text($0.label).tag($0) }
+                            }
+                            .pickerStyle(.segmented)
+                        }
+                        if addressMode == .existing, canUseExistingAddress {
+                            Picker("Select an address", selection: $selectedAddressId) {
+                                Text("Select an address").tag(Int?.none)
+                                ForEach(existingAddresses) { address in
+                                    Text(address.singleLine).tag(Optional(address.id))
+                                }
+                            }
+                        } else {
+                            AddressFormFields(address: $address)
+                        }
+                    }
+                }
+
+                Section {
+                    Toggle("Apply a discount", isOn: $includeDiscount.animation())
+                    if includeDiscount {
+                        Stepper("Discount: \(discount)%", value: $discount, in: 1...100)
+                    }
+                }
+
+                Section("Items") {
+                    ForEach($items) { $item in
+                        OrderLineItemRow(
+                            draft: $item,
+                            productOptions: productOptions,
+                            productsLoading: productsLoading,
+                            onRemove: { items.removeAll { $0.id == item.id } },
+                            removeDisabled: items.count == 1
+                        )
+                    }
+                    Button {
+                        items.append(.new())
+                    } label: {
+                        Label("Add item", systemImage: "plus")
+                    }
+                }
+            }
+            .navigationTitle("New Order")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Create") { Task { await submit() } }
+                        .disabled(!isValid || isSubmitting)
+                }
+            }
+            .disabled(isSubmitting)
+            .task { await loadOptions() }
+            .onChange(of: selectedCustomerId) { _, newValue in
+                Task { await loadCustomerDetail(newValue) }
+            }
+        }
+    }
+
+    private func loadOptions() async {
+        customersLoading = true
+        productsLoading = true
+        async let customersResult = apiClient.get("customers/?page_size=100", as: CursorPage<Customer>.self)
+        async let productsResult = apiClient.get("products/?page_size=100", as: CursorPage<Product>.self)
+        customerOptions = (try? await customersResult)?.results ?? []
+        productOptions = (try? await productsResult)?.results ?? []
+        customersLoading = false
+        productsLoading = false
+    }
+
+    /// Defaults to the customer's first address so placing an order for a
+    /// repeat customer doesn't require re-clicking through "add address" ->
+    /// "use existing" -> pick-from-list every time -- mirrors
+    /// OrderFormModal.tsx's effect.
+    private func loadCustomerDetail(_ id: Int?) async {
+        guard let id else {
+            selectedCustomerDetail = nil
+            return
+        }
+        selectedCustomerDetail = try? await apiClient.get("customers/\(id)/", as: CustomerDetail.self)
+        if let first = selectedCustomerDetail?.addresses.first {
+            includeAddress = true
+            addressMode = .existing
+            selectedAddressId = first.id
+        } else {
+            addressMode = .new
+        }
+    }
+
+    private func submit() async {
+        errorMessage = nil
+        isSubmitting = true
+        defer { isSubmitting = false }
+
+        let resolvedAddress: AddressInput? = {
+            guard includeAddress else { return nil }
+            if addressMode == .existing, canUseExistingAddress {
+                return existingAddresses.first(where: { $0.id == selectedAddressId })?.asInput
+            }
+            return address
+        }()
+
+        let input = CreateOrderInput(
+            customerId: customerMode == .existing ? selectedCustomerId : nil,
+            newCustomer: customerMode == .new
+                ? NewCustomerInput(firstName: newFirstName, lastName: newLastName, email: newEmail.isEmpty ? nil : newEmail, phone: newPhone)
+                : nil,
+            shippingAddress: resolvedAddress,
+            status: status,
+            discount: includeDiscount ? discount : nil,
+            items: items.map { $0.toCreateInput() }
+        )
+
+        do {
+            let created = try await viewModel.create(input)
+            onCreated?(created)
+            dismiss()
+        } catch {
+            errorMessage = apiErrorMessage(error)
+        }
+    }
+}
+
+#Preview {
+    OrderFormView(viewModel: OrdersViewModel())
+}

@@ -1,7 +1,9 @@
 import Foundation
+import Observation
 
 @MainActor
-final class AuthService: ObservableObject {
+@Observable
+final class AuthService {
     enum Status: Equatable {
         /// Initial state while `bootstrap()` checks for a stored session.
         case checking
@@ -9,11 +11,18 @@ final class AuthService: ObservableObject {
         case authenticated(User)
     }
 
-    @Published private(set) var status: Status = .checking
+    private(set) var status: Status = .checking
 
     private let apiClient: APIClient
     private let tokenStore: TokenStore
-    private var sessionExpiredObserver: NSObjectProtocol?
+    // Not observable state (nothing reads it for rendering), and deinit
+    // runs nonisolated regardless of the class's own @MainActor isolation
+    // (deallocation isn't tied to any actor) -- @ObservationIgnored is
+    // needed for nonisolated(unsafe) to apply at all, since @Observable
+    // otherwise wraps every stored property in tracking machinery that
+    // rejects a nonisolated mutable property outright.
+    @ObservationIgnored
+    nonisolated(unsafe) private var sessionExpiredObserver: NSObjectProtocol?
 
     init(apiClient: APIClient = APIClient(), tokenStore: TokenStore = .shared) {
         self.apiClient = apiClient
@@ -63,7 +72,7 @@ final class AuthService: ObservableObject {
         if let refresh = tokenStore.refreshToken {
             // Best-effort: whether or not the server-side revoke succeeds,
             // the app must still drop its local session.
-            try? await apiClient.post("auth/logout/", body: RefreshRequest(refresh: refresh))
+            _ = try? await apiClient.post("auth/logout/", body: RefreshRequest(refresh: refresh))
         }
         tokenStore.clear()
         status = .unauthenticated

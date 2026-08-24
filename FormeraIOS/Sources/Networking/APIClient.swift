@@ -2,7 +2,7 @@ import Foundation
 
 enum APIError: Error {
     case invalidURL
-    case requestFailed(Int, Data)
+    case requestFailed(ApiError)
     case encodingFailed(Error)
     case decodingFailed(Error)
 }
@@ -10,6 +10,8 @@ enum APIError: Error {
 private enum HTTPMethod: String {
     case get = "GET"
     case post = "POST"
+    case patch = "PATCH"
+    case delete = "DELETE"
 }
 
 struct APIClient {
@@ -51,6 +53,40 @@ struct APIClient {
         return try await sendRaw(path, method: .post, bodyData: bodyData, contentType: "application/json", authenticated: authenticated)
     }
 
+    func patch<Body: Encodable, Response: Decodable>(
+        _ path: String,
+        body: Body,
+        as type: Response.Type
+    ) async throws -> Response {
+        let bodyData = try encode(body)
+        let data = try await sendRaw(path, method: .patch, bodyData: bodyData, contentType: "application/json", authenticated: true)
+        return try decode(data)
+    }
+
+    /// Every business resource is soft-deleted server-side (see the
+    /// "archive not delete" note in the migration plan), but the HTTP verb
+    /// is still DELETE and the response is 204 -- no body to decode.
+    func delete(_ path: String) async throws {
+        _ = try await sendRaw(path, method: .delete, bodyData: nil, contentType: nil, authenticated: true)
+    }
+
+    /// For an endpoint that returns a file (e.g. the order invoice PDF)
+    /// rather than JSON -- reuses the same auth/refresh handling as the
+    /// JSON methods, just skips decoding and surfaces the server-suggested
+    /// filename instead. Mirrors lib/api.ts's apiFetchBlob.
+    func getBlob(_ path: String) async throws -> (data: Data, filename: String?) {
+        let (data, response) = try await sendRawFull(path, method: .get, bodyData: nil, contentType: nil, authenticated: true)
+        let filename = response.value(forHTTPHeaderField: "Content-Disposition").flatMap(Self.filename(fromContentDisposition:))
+        return (data, filename)
+    }
+
+    private static func filename(fromContentDisposition header: String) -> String? {
+        guard let range = header.range(of: "filename=\"?") else { return nil }
+        let rest = header[range.upperBound...]
+        let name = rest.prefix { $0 != "\"" }
+        return name.isEmpty ? nil : String(name)
+    }
+
     // MARK: - Core
 
     private func sendRaw(
@@ -58,9 +94,19 @@ struct APIClient {
         method: HTTPMethod,
         bodyData: Data?,
         contentType: String?,
+        authenticated: Bool
+    ) async throws -> Data {
+        try await sendRawFull(path, method: method, bodyData: bodyData, contentType: contentType, authenticated: authenticated).data
+    }
+
+    private func sendRawFull(
+        _ path: String,
+        method: HTTPMethod,
+        bodyData: Data?,
+        contentType: String?,
         authenticated: Bool,
         isRetry: Bool = false
-    ) async throws -> Data {
+    ) async throws -> (data: Data, response: HTTPURLResponse) {
         guard let url = URL(string: path, relativeTo: Self.baseURL) else {
             throw APIError.invalidURL
         }
@@ -77,7 +123,7 @@ struct APIClient {
 
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse else {
-            throw APIError.requestFailed(-1, data)
+            throw APIError.requestFailed(ApiError(status: -1, data: data))
         }
 
         // A 401 on an authenticated request means the access token expired
@@ -85,19 +131,21 @@ struct APIClient {
         // than surfacing a spurious failure to the caller.
         if httpResponse.statusCode == 401, authenticated, !isRetry,
            await AuthSession.shared.refreshAccessToken() {
-            return try await sendRaw(path, method: method, bodyData: bodyData, contentType: contentType, authenticated: authenticated, isRetry: true)
+            return try await sendRawFull(path, method: method, bodyData: bodyData, contentType: contentType, authenticated: authenticated, isRetry: true)
         }
 
         guard (200..<300).contains(httpResponse.statusCode) else {
-            throw APIError.requestFailed(httpResponse.statusCode, data)
+            throw APIError.requestFailed(ApiError(status: httpResponse.statusCode, data: data))
         }
 
-        return data
+        return (data, httpResponse)
     }
 
     private func encode(_ body: some Encodable) throws -> Data {
         do {
-            return try JSONEncoder().encode(body)
+            let encoder = JSONEncoder()
+            encoder.keyEncodingStrategy = .convertToSnakeCase
+            return try encoder.encode(body)
         } catch {
             throw APIError.encodingFailed(error)
         }
