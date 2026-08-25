@@ -30,10 +30,13 @@
 		76495F361A3618AD013F3239 /* FormeraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000E937AB4D0993A42DDF08 /* FormeraApp.swift */; };
 		7750C7F44A2DCF5FC5A1902B /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9224DA8332DD1F3C6076F7FD /* DashboardView.swift */; };
 		7AA93EC7534C21DCCC37F257 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD964ABE09117318693D9FA /* User.swift */; };
+		7AD5655A2B322C3B146DC896 /* Locations.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6D8126FFED1F7E6E7545837 /* Locations.swift */; };
+		7FADB9FE03BBDBF1A11A7191 /* PhoneFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3477BB686A7CCE3EAD7EC967 /* PhoneFormatting.swift */; };
 		889D95082627FDADC5D7B4FF /* Carrier.swift in Sources */ = {isa = PBXBuildFile; fileRef = E21084D5E95B705D29B0E3BE /* Carrier.swift */; };
 		893693C13337245DEFDC8344 /* OrderFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A421CA4345067B9BF13D160 /* OrderFormView.swift */; };
 		916DE93FD4E6B610D8D5F096 /* ProductsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFE909F620DC5F33FC1D221 /* ProductsViewModel.swift */; };
 		91910C3B3C01AC7F727E1EBC /* CustomerEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54A2B4FDA35760AD92C4B8A2 /* CustomerEditView.swift */; };
+		9205CC1659C64CD7FCC7935D /* AddressEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641819237C5FD784961C5FF0 /* AddressEditView.swift */; };
 		92147DD3F3012E1B274E50EF /* StatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CDF318F4E5C7D411A4D749E /* StatusBadge.swift */; };
 		960EEB179D88F6645ED2EC01 /* Order.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654E3596012F9DD7C9F17709 /* Order.swift */; };
 		96DED6CD257CEE9C9954D279 /* CustomerFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F848F5DD430233CD51F3ED5 /* CustomerFormView.swift */; };
@@ -68,6 +71,7 @@
 		27B8342526578625CF6A4CB2 /* Customer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Customer.swift; sourceTree = "<group>"; };
 		2CDF318F4E5C7D411A4D749E /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
 		311DE0C3591BCC8965B11530 /* WeekFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekFormatting.swift; sourceTree = "<group>"; };
+		3477BB686A7CCE3EAD7EC967 /* PhoneFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneFormatting.swift; sourceTree = "<group>"; };
 		393138B165F3814D0D0AB6EA /* FormeraIOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = FormeraIOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		419F88D60E7C7B73D3B0BB25 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		45443517D8E4053A8B1D623F /* OrdersListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdersListView.swift; sourceTree = "<group>"; };
@@ -79,6 +83,7 @@
 		555ED99DB69CFC8C03A4DDE5 /* CurrencyFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyFormatting.swift; sourceTree = "<group>"; };
 		5F848F5DD430233CD51F3ED5 /* CustomerFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerFormView.swift; sourceTree = "<group>"; };
 		62CDFAB54C250B326A47CDB4 /* ApiError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiError.swift; sourceTree = "<group>"; };
+		641819237C5FD784961C5FF0 /* AddressEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressEditView.swift; sourceTree = "<group>"; };
 		654E3596012F9DD7C9F17709 /* Order.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Order.swift; sourceTree = "<group>"; };
 		7D13E7945058B1045F0CF6C9 /* OrdersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdersViewModel.swift; sourceTree = "<group>"; };
 		80EA85FE78732A215B73B89F /* CustomersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomersViewModel.swift; sourceTree = "<group>"; };
@@ -94,6 +99,7 @@
 		A3518612F3E0C67167792A37 /* CustomerRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerRequests.swift; sourceTree = "<group>"; };
 		A38B148F1D7F44960FCDDAF5 /* OrderRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderRow.swift; sourceTree = "<group>"; };
 		A596DBAEF03DEC6053FF1605 /* Product.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Product.swift; sourceTree = "<group>"; };
+		A6D8126FFED1F7E6E7545837 /* Locations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Locations.swift; sourceTree = "<group>"; };
 		ACD964ABE09117318693D9FA /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		B2D57C3011096903D6946655 /* Pagination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pagination.swift; sourceTree = "<group>"; };
 		B4CF774A37AAC5D227C2AC60 /* OrderDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderDetailView.swift; sourceTree = "<group>"; };
@@ -200,6 +206,7 @@
 		8CA2723BE8EED8EBAE679907 /* Customers */ = {
 			isa = PBXGroup;
 			children = (
+				641819237C5FD784961C5FF0 /* AddressEditView.swift */,
 				F684F96B977C9662FE5560DF /* CustomerDetailView.swift */,
 				54A2B4FDA35760AD92C4B8A2 /* CustomerEditView.swift */,
 				5F848F5DD430233CD51F3ED5 /* CustomerFormView.swift */,
@@ -224,6 +231,8 @@
 				8AC5D064E7D3C0EBA3E4888E /* AddressFormFields.swift */,
 				555ED99DB69CFC8C03A4DDE5 /* CurrencyFormatting.swift */,
 				523E0E237DEB24979DCCB791 /* DRFDate.swift */,
+				A6D8126FFED1F7E6E7545837 /* Locations.swift */,
+				3477BB686A7CCE3EAD7EC967 /* PhoneFormatting.swift */,
 				2CDF318F4E5C7D411A4D749E /* StatusBadge.swift */,
 				311DE0C3591BCC8965B11530 /* WeekFormatting.swift */,
 			);
@@ -299,7 +308,7 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					6A8FA9042F81034B314EFD4D = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = TT4TYJV7FD;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -341,6 +350,7 @@
 			files = (
 				2B9D1B557B02B60DA625C8D7 /* APIClient.swift in Sources */,
 				27A15EDC069BE9FD38C350A6 /* ActivityView.swift in Sources */,
+				9205CC1659C64CD7FCC7935D /* AddressEditView.swift in Sources */,
 				35FBAB71E840CB5A42188E2D /* AddressFormFields.swift in Sources */,
 				FB0B9BE2EF9EFFB80596F225 /* AddressInput.swift in Sources */,
 				56D53F48EA1A95736C44A984 /* ApiError.swift in Sources */,
@@ -360,6 +370,7 @@
 				FB36754476D3DE1FD20CA9B1 /* DRFDate.swift in Sources */,
 				7750C7F44A2DCF5FC5A1902B /* DashboardView.swift in Sources */,
 				76495F361A3618AD013F3239 /* FormeraApp.swift in Sources */,
+				7AD5655A2B322C3B146DC896 /* Locations.swift in Sources */,
 				CC72ACA1DA149A4E0FBA591C /* LoginView.swift in Sources */,
 				BCC1447BDB5C5E864CB9D337 /* Omittable.swift in Sources */,
 				960EEB179D88F6645ED2EC01 /* Order.swift in Sources */,
@@ -373,6 +384,7 @@
 				BA0C3F8E0881F7A19BB87E33 /* OrdersListView.swift in Sources */,
 				EBF004193B37499E7D710E85 /* OrdersViewModel.swift in Sources */,
 				B473FCC9B470E800E815ACCC /* Pagination.swift in Sources */,
+				7FADB9FE03BBDBF1A11A7191 /* PhoneFormatting.swift in Sources */,
 				3047237A4B0B474FE3932EF8 /* Product.swift in Sources */,
 				36AD35EBF5BFB375D79DB8A4 /* ProductDetailView.swift in Sources */,
 				CF3261C22228A6D8EC1BEEF9 /* ProductFormView.swift in Sources */,
@@ -427,7 +439,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = TT4TYJV7FD;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -452,6 +464,7 @@
 		AC8B7E0B48D64F37643AB6FD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				API_BASE_URL = "http://192.168.0.190:8000/api/";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -469,6 +482,7 @@
 		B0E39C2A20EF9146BCCCF265 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				API_BASE_URL = "https://formera-api-833262393415.us-west2.run.app/api/";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -519,7 +533,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = TT4TYJV7FD;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;

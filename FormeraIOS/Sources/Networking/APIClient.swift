@@ -15,14 +15,22 @@ private enum HTTPMethod: String {
 }
 
 struct APIClient {
-    /// Points at the local Django dev server. Update for staging/production
-    /// or move this behind an xcconfig-driven build setting later.
+    /// Set per-configuration by the API_BASE_URL build setting (see
+    /// project.yml): Debug points at the local Django dev server, Release
+    /// at the production Cloud Run deployment, via the APIBaseURL Info.plist
+    /// key.
     ///
     /// Trailing slash matters: URL(string:relativeTo:) resolves a relative
     /// path against everything but the base's last path segment, so without
-    /// it "products/" resolves to "127.0.0.1:8000/products/" instead of
-    /// ".../api/products/".
-    static let baseURL = URL(string: "http://127.0.0.1:8000/api/")!
+    /// it "products/" resolves to ".../formera-api-833262393415.us-west2.run.app/products/"
+    /// instead of ".../api/products/".
+    static let baseURL: URL = {
+        guard let string = Bundle.main.object(forInfoDictionaryKey: "APIBaseURL") as? String,
+              let url = URL(string: string) else {
+            fatalError("Missing or invalid APIBaseURL in Info.plist")
+        }
+        return url
+    }()
 
     private let tokenStore: TokenStore
 
