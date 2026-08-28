@@ -11,7 +11,7 @@ settings:
     DEVELOPMENT_TEAM: "TT4TYJV7FD"
     CODE_SIGN_STYLE: Automatic
     MARKETING_VERSION: "1.0.1"
-    CURRENT_PROJECT_VERSION: "2"
+    CURRENT_PROJECT_VERSION: "3"
 
 targets:
   FormeraIOS:
@@ -57,5 +57,15 @@ schemes:
       config: Debug
     test:
       config: Debug
+    archive:
+      config: Release
+  FormeraIOS (Release):
+    build:
+      targets:
+        FormeraIOS: all
+    run:
+      config: Release
+    test:
+      config: Release
     archive:
       config: Release
