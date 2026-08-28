@@ -9,8 +9,8 @@ struct CustomerEditView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var firstName: String
     @State private var lastName: String
-    @State private var email: String
     @State private var phone: String
+    @State private var notes: String
     @State private var isSubmitting = false
     @State private var errorMessage: String?
 
@@ -24,8 +24,8 @@ struct CustomerEditView: View {
         self.onUpdated = onUpdated
         _firstName = State(initialValue: detail.firstName)
         _lastName = State(initialValue: detail.lastName)
-        _email = State(initialValue: detail.email ?? "")
         _phone = State(initialValue: detail.phone)
+        _notes = State(initialValue: detail.notes)
     }
 
     var body: some View {
@@ -42,14 +42,14 @@ struct CustomerEditView: View {
                         .textContentType(.givenName)
                     TextField("Last name", text: $lastName)
                         .textContentType(.familyName)
-                    TextField("Email", text: $email)
-                        .textContentType(.emailAddress)
-                        .keyboardType(.emailAddress)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
                     TextField("Phone", text: $phone)
                         .textContentType(.telephoneNumber)
                         .keyboardType(.phonePad)
+                }
+
+                Section("Notes") {
+                    TextField("Notes", text: $notes, axis: .vertical)
+                        .lineLimit(3...10)
                 }
             }
             .navigationTitle("Edit Customer")
@@ -75,8 +75,8 @@ struct CustomerEditView: View {
         let input = UpdateCustomerInput(
             firstName: firstName,
             lastName: lastName,
-            email: email.isEmpty ? nil : email,
-            phone: phone
+            phone: phone,
+            notes: notes
         )
         do {
             let updated = try await viewModel.update(detail.id, input)

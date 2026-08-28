@@ -41,7 +41,7 @@ struct ProductsListView: View {
             } else if viewModel.products.isEmpty {
                 ContentUnavailableView(
                     viewModel.errorMessage ?? "No products yet",
-                    systemImage: viewModel.errorMessage == nil ? "cube.box" : "exclamationmark.triangle"
+                    systemImage: viewModel.errorMessage == nil ? "shippingbox.fill" : "exclamationmark.triangle"
                 )
             }
         }

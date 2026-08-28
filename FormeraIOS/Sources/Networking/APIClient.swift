@@ -46,7 +46,7 @@ struct APIClient {
     func post<Body: Encodable, Response: Decodable>(
         _ path: String,
         body: Body,
-        authenticated: Bool = false,
+        authenticated: Bool = true,
         as type: Response.Type
     ) async throws -> Response {
         let bodyData = try encode(body)
@@ -56,7 +56,7 @@ struct APIClient {
 
     /// For endpoints whose response body isn't needed (e.g. logout's 204).
     @discardableResult
-    func post<Body: Encodable>(_ path: String, body: Body, authenticated: Bool = false) async throws -> Data {
+    func post<Body: Encodable>(_ path: String, body: Body, authenticated: Bool = true) async throws -> Data {
         let bodyData = try encode(body)
         return try await sendRaw(path, method: .post, bodyData: bodyData, contentType: "application/json", authenticated: authenticated)
     }

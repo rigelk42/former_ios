@@ -5,7 +5,6 @@ struct Customer: Decodable, Identifiable, Hashable {
     let id: Int
     let firstName: String
     let lastName: String
-    let email: String?
     let phone: String
     let createdAt: String
     let updatedAt: String
@@ -38,8 +37,8 @@ struct CustomerDetail: Decodable, Identifiable, Hashable {
     let id: Int
     let firstName: String
     let lastName: String
-    let email: String?
     let phone: String
+    let notes: String
     let createdAt: String
     let updatedAt: String
     let addresses: [Address]
@@ -52,7 +51,6 @@ struct CustomerDetail: Decodable, Identifiable, Hashable {
             id: id,
             firstName: firstName,
             lastName: lastName,
-            email: email,
             phone: phone,
             createdAt: createdAt,
             updatedAt: updatedAt

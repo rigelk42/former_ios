@@ -36,7 +36,7 @@ struct OrderLineItemRow: View {
                         draft.selectedProductId = nil
                         draft.unitPriceText = ""
                     } else if let id = newValue, let product = productOptions.first(where: { $0.id == id }) {
-                        draft.unitPriceText = product.price
+                        draft.unitPriceText = product.defaultOrderUnitPrice
                     }
                 }
             }

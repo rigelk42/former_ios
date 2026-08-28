@@ -33,7 +33,13 @@ struct OrderEditView: View {
         _includeDiscount = State(initialValue: order.discount != nil)
         _discount = State(initialValue: order.discount ?? 10)
         _includeAddress = State(initialValue: order.shippingAddress != nil)
-        _address = State(initialValue: order.shippingAddress ?? .empty)
+        // Country has no field in AddressFormFields anymore (fixed to
+        // "US"), so a pre-cleanup record's stale value (e.g. "United
+        // States") is normalized here rather than silently round-tripped
+        // back to the server unchanged.
+        var seededAddress = order.shippingAddress ?? .empty
+        seededAddress.country = "US"
+        _address = State(initialValue: seededAddress)
         _items = State(initialValue: order.items.map(OrderItemDraft.from))
     }
 
@@ -103,7 +109,7 @@ struct OrderEditView: View {
 
     private func loadProductOptions() async {
         productsLoading = true
-        productOptions = (try? await apiClient.get("products/?page_size=100", as: CursorPage<Product>.self))?.results ?? []
+        productOptions = ((try? await apiClient.get("products/?page_size=100", as: CursorPage<Product>.self))?.results ?? []).sortedForOrderPicker()
         productsLoading = false
     }
 

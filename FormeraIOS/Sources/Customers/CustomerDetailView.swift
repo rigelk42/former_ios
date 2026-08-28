@@ -12,6 +12,8 @@ struct CustomerDetailView: View {
     @State private var isEditPresented = false
     @State private var isDeleteCustomerConfirming = false
     @State private var addressPendingDelete: Address?
+    @State private var isAddAddressPresented = false
+    @State private var addressBeingEdited: Address?
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -20,11 +22,16 @@ struct CustomerDetailView: View {
                 List {
                     Section("Contact") {
                         LabeledContent("Name", value: detail.fullName)
-                        if let email = detail.email, !email.isEmpty {
-                            LabeledContent("Email", value: email)
-                        }
                         if !detail.phone.isEmpty {
-                            LabeledContent("Phone", value: detail.phone)
+                            LabeledContent("Phone", value: detail.phone.formattedAsPhone)
+                        }
+                    }
+
+                    Section("Notes") {
+                        if detail.notes.isEmpty {
+                            Text("No notes").foregroundStyle(.secondary)
+                        } else {
+                            Text(detail.notes)
                         }
                     }
 
@@ -33,14 +40,24 @@ struct CustomerDetailView: View {
                             Text("No saved addresses").foregroundStyle(.secondary)
                         }
                         ForEach(detail.addresses) { address in
-                            Text(address.singleLine)
-                                .swipeActions {
-                                    Button(role: .destructive) {
-                                        addressPendingDelete = address
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
-                                    }
+                            Button {
+                                addressBeingEdited = address
+                            } label: {
+                                Text(address.singleLine)
+                            }
+                            .foregroundStyle(.primary)
+                            .swipeActions {
+                                Button(role: .destructive) {
+                                    addressPendingDelete = address
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
                                 }
+                            }
+                        }
+                        Button {
+                            isAddAddressPresented = true
+                        } label: {
+                            Label("Add Address", systemImage: "plus")
                         }
                     }
 
@@ -86,6 +103,16 @@ struct CustomerDetailView: View {
                 CustomerEditView(detail: detail, viewModel: viewModel) { updated in
                     self.detail = updated
                 }
+            }
+        }
+        .sheet(isPresented: $isAddAddressPresented) {
+            AddressEditView(customerId: customerId, viewModel: viewModel) { _ in
+                Task { await load() }
+            }
+        }
+        .sheet(item: $addressBeingEdited) { address in
+            AddressEditView(customerId: customerId, existingAddress: address, viewModel: viewModel) { _ in
+                Task { await load() }
             }
         }
         .confirmationDialog(

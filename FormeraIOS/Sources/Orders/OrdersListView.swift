@@ -41,7 +41,7 @@ struct OrdersListView: View {
             } else if viewModel.weeks.isEmpty {
                 ContentUnavailableView(
                     viewModel.errorMessage ?? "No orders yet",
-                    systemImage: viewModel.errorMessage == nil ? "shippingbox" : "exclamationmark.triangle"
+                    systemImage: viewModel.errorMessage == nil ? "list.clipboard" : "exclamationmark.triangle"
                 )
             }
         }

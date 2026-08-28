@@ -62,6 +62,7 @@ final class AuthService {
         let response = try await apiClient.post(
             "auth/login/",
             body: LoginRequest(email: email, password: password),
+            authenticated: false,
             as: LoginResponse.self
         )
         tokenStore.save(access: response.access, refresh: response.refresh)
@@ -72,7 +73,7 @@ final class AuthService {
         if let refresh = tokenStore.refreshToken {
             // Best-effort: whether or not the server-side revoke succeeds,
             // the app must still drop its local session.
-            _ = try? await apiClient.post("auth/logout/", body: RefreshRequest(refresh: refresh))
+            _ = try? await apiClient.post("auth/logout/", body: RefreshRequest(refresh: refresh), authenticated: false)
         }
         tokenStore.clear()
         status = .unauthenticated

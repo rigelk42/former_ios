@@ -10,6 +10,8 @@ settings:
     SWIFT_VERSION: "5.0"
     DEVELOPMENT_TEAM: "TT4TYJV7FD"
     CODE_SIGN_STYLE: Automatic
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
 
 targets:
   FormeraIOS:
@@ -26,6 +28,8 @@ targets:
         UIRequiresFullScreen: true
         ITSAppUsesNonExemptEncryption: false
         APIBaseURL: $(API_BASE_URL)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSAppTransportSecurity:
           NSExceptionDomains:
             localhost:

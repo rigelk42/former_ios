@@ -93,6 +93,14 @@ final class CustomersViewModel {
         try await apiClient.delete("customers/\(customerId)/addresses/\(addressId)/")
     }
 
+    func createAddress(customerId: Int, _ input: AddressInput) async throws -> Address {
+        try await apiClient.post("customers/\(customerId)/addresses/", body: input, as: Address.self)
+    }
+
+    func updateAddress(customerId: Int, addressId: Int, _ input: AddressInput) async throws -> Address {
+        try await apiClient.patch("customers/\(customerId)/addresses/\(addressId)/", body: input, as: Address.self)
+    }
+
     /// For populating a customer picker (e.g. the order form) rather than
     /// the paginated list -- 100 is the backend's max_page_size, the most
     /// this can fetch in one request without a dedicated search endpoint.

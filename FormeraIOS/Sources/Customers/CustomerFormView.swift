@@ -8,8 +8,8 @@ struct CustomerFormView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var firstName = ""
     @State private var lastName = ""
-    @State private var email = ""
     @State private var phone = ""
+    @State private var notes = ""
     @State private var includeAddress = false
     @State private var address = AddressInput.empty
     @State private var isSubmitting = false
@@ -29,14 +29,14 @@ struct CustomerFormView: View {
                         .textContentType(.givenName)
                     TextField("Last name", text: $lastName)
                         .textContentType(.familyName)
-                    TextField("Email", text: $email)
-                        .textContentType(.emailAddress)
-                        .keyboardType(.emailAddress)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
                     TextField("Phone", text: $phone)
                         .textContentType(.telephoneNumber)
                         .keyboardType(.phonePad)
+                }
+
+                Section("Notes") {
+                    TextField("Notes", text: $notes, axis: .vertical)
+                        .lineLimit(3...10)
                 }
 
                 Section {
@@ -72,8 +72,8 @@ struct CustomerFormView: View {
         let input = CreateCustomerInput(
             firstName: firstName,
             lastName: lastName,
-            email: email.isEmpty ? nil : email,
             phone: phone,
+            notes: notes,
             address: includeAddress ? address : nil
         )
         do {

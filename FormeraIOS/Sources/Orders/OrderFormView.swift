@@ -29,7 +29,6 @@ struct OrderFormView: View {
 
     @State private var newFirstName = ""
     @State private var newLastName = ""
-    @State private var newEmail = ""
     @State private var newPhone = ""
 
     @State private var includeAddress = false
@@ -86,11 +85,6 @@ struct OrderFormView: View {
                     } else {
                         TextField("First name", text: $newFirstName).textContentType(.givenName)
                         TextField("Last name", text: $newLastName).textContentType(.familyName)
-                        TextField("Email", text: $newEmail)
-                            .textContentType(.emailAddress)
-                            .keyboardType(.emailAddress)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
                         TextField("Phone", text: $newPhone)
                             .textContentType(.telephoneNumber)
                             .keyboardType(.phonePad)
@@ -168,9 +162,17 @@ struct OrderFormView: View {
         async let customersResult = apiClient.get("customers/?page_size=100", as: CursorPage<Customer>.self)
         async let productsResult = apiClient.get("products/?page_size=100", as: CursorPage<Product>.self)
         customerOptions = (try? await customersResult)?.results ?? []
-        productOptions = (try? await productsResult)?.results ?? []
+        productOptions = ((try? await productsResult)?.results ?? []).sortedForOrderPicker()
         customersLoading = false
         productsLoading = false
+
+        // Bacteriostatic Water is added to nearly every order, so default
+        // the first line item to it (1 unit at catalog price) instead of
+        // making staff pick it from the list every time.
+        if let defaultProduct = productOptions.first(where: { $0.name == "Bacteriostatic Water" }) {
+            items[0].selectedProductId = defaultProduct.id
+            items[0].unitPriceText = defaultProduct.defaultOrderUnitPrice
+        }
     }
 
     /// Defaults to the customer's first address so placing an order for a
@@ -208,7 +210,7 @@ struct OrderFormView: View {
         let input = CreateOrderInput(
             customerId: customerMode == .existing ? selectedCustomerId : nil,
             newCustomer: customerMode == .new
-                ? NewCustomerInput(firstName: newFirstName, lastName: newLastName, email: newEmail.isEmpty ? nil : newEmail, phone: newPhone)
+                ? NewCustomerInput(firstName: newFirstName, lastName: newLastName, phone: newPhone)
                 : nil,
             shippingAddress: resolvedAddress,
             status: status,

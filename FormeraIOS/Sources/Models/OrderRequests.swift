@@ -3,7 +3,6 @@ import Foundation
 struct NewCustomerInput: Encodable {
     var firstName: String
     var lastName: String
-    var email: String?
     var phone: String
 }
 

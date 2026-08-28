@@ -22,8 +22,8 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
         switch self {
         case .dashboard: "square.grid.2x2"
         case .customers: "person.2"
-        case .orders: "shippingbox"
-        case .products: "cube.box"
+        case .orders: "list.clipboard"
+        case .products: "shippingbox.fill"
         }
     }
 }
@@ -100,9 +100,15 @@ private struct LogoTitleView: View {
 /// layouts.
 private struct AccountMenu: View {
     @Environment(AuthService.self) private var auth
+    @State private var showingAbout = false
 
     var body: some View {
         Menu {
+            Button {
+                showingAbout = true
+            } label: {
+                Label("About", systemImage: "info.circle")
+            }
             Button(role: .destructive) {
                 Task { await auth.logout() }
             } label: {
@@ -111,6 +117,7 @@ private struct AccountMenu: View {
         } label: {
             Image(systemName: "person.crop.circle")
         }
+        .sheet(isPresented: $showingAbout) { AboutView() }
     }
 }
 

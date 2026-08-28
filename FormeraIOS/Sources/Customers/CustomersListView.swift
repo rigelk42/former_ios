@@ -13,12 +13,8 @@ struct CustomersListView: View {
                 NavigationLink(value: customer) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(customer.fullName)
-                        if let email = customer.email, !email.isEmpty {
-                            Text(email)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        } else if !customer.phone.isEmpty {
-                            Text(customer.phone)
+                        if !customer.phone.isEmpty {
+                            Text(customer.phone.formattedAsPhone)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
