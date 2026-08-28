@@ -11,7 +11,7 @@ settings:
     DEVELOPMENT_TEAM: "TT4TYJV7FD"
     CODE_SIGN_STYLE: Automatic
     MARKETING_VERSION: "1.0.2"
-    CURRENT_PROJECT_VERSION: "4"
+    CURRENT_PROJECT_VERSION: "5"
 
 targets:
   FormeraIOS:
@@ -47,6 +47,14 @@ targets:
           API_BASE_URL: "http://192.168.0.190:8000/api/"
         Release:
           API_BASE_URL: "https://formera-api-833262393415.us-west2.run.app/api/"
+          # AltServer's bundled ldid (used to re-sign sideloaded builds with
+          # a free Apple ID) predates chained fixups -- the Mach-O binding
+          # format that's been Xcode's default for this deployment target
+          # since Xcode 15 -- and crashes trying to parse it
+          # ("ldid.cpp: assert end >= size"). -no_fixup_chains reverts to
+          # the pre-Xcode-15 classic binding format, which every signing
+          # tool (including Apple's) still accepts.
+          OTHER_LDFLAGS: "-Wl,-no_fixup_chains"
 
 schemes:
   FormeraIOS:
