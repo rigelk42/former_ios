@@ -10,6 +10,7 @@
 		02556C58154250D702F818CE /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A02208BA62F19C85670098F0 /* RootView.swift */; };
 		16CA9E369AEC3FF3F4A2A529 /* WeekFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 311DE0C3591BCC8965B11530 /* WeekFormatting.swift */; };
 		1CA88F6E51EB478206363697 /* ProductsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13E8162CA0D3375D759957C3 /* ProductsListView.swift */; };
+		1FAFC2FBB9DE24E2F9B54D96 /* SalesSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DD138DB61BE48C948317EE7 /* SalesSummary.swift */; };
 		25548EA4F3964474D223C081 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9D5873F5F938D9DE4861D160 /* Assets.xcassets */; };
 		27A15EDC069BE9FD38C350A6 /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E193E5BF2BED76F3F5E3C8DD /* ActivityView.swift */; };
 		2B9D1B557B02B60DA625C8D7 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419F88D60E7C7B73D3B0BB25 /* APIClient.swift */; };
@@ -54,6 +55,7 @@
 		E5DD7C74333DB683355A7DB3 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95632CA624201275BAB2BAD2 /* AboutView.swift */; };
 		EA3210B28A051AFB7F08E201 /* CustomerRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3518612F3E0C67167792A37 /* CustomerRequests.swift */; };
 		EBF004193B37499E7D710E85 /* OrdersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D13E7945058B1045F0CF6C9 /* OrdersViewModel.swift */; };
+		ED5AAE35D96211ADBCC4AF9E /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32E25342C085D1EEA4E4686D /* DashboardViewModel.swift */; };
 		F1335B640D509907A1944F1C /* OrderEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CF4D03313C0EC230A720261 /* OrderEditView.swift */; };
 		F13383940F90B5EFE2146F6C /* TokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFD3D1D8893A906443932E8 /* TokenStore.swift */; };
 		FB0B9BE2EF9EFFB80596F225 /* AddressInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF2FB17E7CEF8AC38B77BA34 /* AddressInput.swift */; };
@@ -72,6 +74,7 @@
 		27B8342526578625CF6A4CB2 /* Customer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Customer.swift; sourceTree = "<group>"; };
 		2CDF318F4E5C7D411A4D749E /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
 		311DE0C3591BCC8965B11530 /* WeekFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekFormatting.swift; sourceTree = "<group>"; };
+		32E25342C085D1EEA4E4686D /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
 		3477BB686A7CCE3EAD7EC967 /* PhoneFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneFormatting.swift; sourceTree = "<group>"; };
 		393138B165F3814D0D0AB6EA /* FormeraIOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = FormeraIOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		419F88D60E7C7B73D3B0BB25 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
@@ -86,6 +89,7 @@
 		62CDFAB54C250B326A47CDB4 /* ApiError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiError.swift; sourceTree = "<group>"; };
 		641819237C5FD784961C5FF0 /* AddressEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressEditView.swift; sourceTree = "<group>"; };
 		654E3596012F9DD7C9F17709 /* Order.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Order.swift; sourceTree = "<group>"; };
+		6DD138DB61BE48C948317EE7 /* SalesSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesSummary.swift; sourceTree = "<group>"; };
 		7D13E7945058B1045F0CF6C9 /* OrdersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdersViewModel.swift; sourceTree = "<group>"; };
 		80EA85FE78732A215B73B89F /* CustomersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomersViewModel.swift; sourceTree = "<group>"; };
 		838F778D23821D8070A2998D /* ShipmentSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShipmentSection.swift; sourceTree = "<group>"; };
@@ -153,6 +157,7 @@
 				13FBA951F6E9F855A7BAF7C8 /* OrderRequests.swift */,
 				A596DBAEF03DEC6053FF1605 /* Product.swift */,
 				9593BAE051868FF3ADA2B9BC /* ProductRequests.swift */,
+				6DD138DB61BE48C948317EE7 /* SalesSummary.swift */,
 				ACD964ABE09117318693D9FA /* User.swift */,
 			);
 			path = Models;
@@ -164,6 +169,7 @@
 				95632CA624201275BAB2BAD2 /* AboutView.swift */,
 				DDC3E0EDEC33E7E11CA07ABA /* AppShellView.swift */,
 				9224DA8332DD1F3C6076F7FD /* DashboardView.swift */,
+				32E25342C085D1EEA4E4686D /* DashboardViewModel.swift */,
 				45C9D1C96A3C03BCA82AC3BE /* LoginView.swift */,
 				A02208BA62F19C85670098F0 /* RootView.swift */,
 			);
@@ -373,6 +379,7 @@
 				E2B787FEDCF5973BF58724EA /* CustomersViewModel.swift in Sources */,
 				FB36754476D3DE1FD20CA9B1 /* DRFDate.swift in Sources */,
 				7750C7F44A2DCF5FC5A1902B /* DashboardView.swift in Sources */,
+				ED5AAE35D96211ADBCC4AF9E /* DashboardViewModel.swift in Sources */,
 				76495F361A3618AD013F3239 /* FormeraApp.swift in Sources */,
 				7AD5655A2B322C3B146DC896 /* Locations.swift in Sources */,
 				CC72ACA1DA149A4E0FBA591C /* LoginView.swift in Sources */,
@@ -396,6 +403,7 @@
 				1CA88F6E51EB478206363697 /* ProductsListView.swift in Sources */,
 				916DE93FD4E6B610D8D5F096 /* ProductsViewModel.swift in Sources */,
 				02556C58154250D702F818CE /* RootView.swift in Sources */,
+				1FAFC2FBB9DE24E2F9B54D96 /* SalesSummary.swift in Sources */,
 				3FFEEAF1A9B6B6BDFE71F486 /* ShipmentSection.swift in Sources */,
 				92147DD3F3012E1B274E50EF /* StatusBadge.swift in Sources */,
 				F13383940F90B5EFE2146F6C /* TokenStore.swift in Sources */,
