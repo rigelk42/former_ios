@@ -73,6 +73,28 @@ struct OrderFormView: View {
         }
     }
 
+    /// Client-side preview of the server-computed total, so staff can see
+    /// where the order lands while still entering items -- the real total
+    /// is always recomputed server-side on submit (see
+    /// Order.recompute_total on the backend).
+    private var runningSubtotal: Decimal {
+        items.reduce(Decimal(0)) { partial, item in
+            guard let price = Decimal(string: item.unitPriceText) else { return partial }
+            return partial + price * Decimal(item.quantity)
+        }
+    }
+
+    private var runningTotal: Decimal {
+        guard includeDiscount else { return runningSubtotal }
+        switch discountType {
+        case .percent:
+            return (runningSubtotal * Decimal(100 - discountPercent) / Decimal(100))
+        case .amount:
+            guard let amount = Decimal(string: discountAmountText) else { return runningSubtotal }
+            return max(runningSubtotal - amount, Decimal(0))
+        }
+    }
+
     private var existingAddresses: [Address] { selectedCustomerDetail?.addresses ?? [] }
     private var canUseExistingAddress: Bool { customerMode == .existing && !existingAddresses.isEmpty }
 
@@ -184,7 +206,7 @@ struct OrderFormView: View {
                         .lineLimit(3...10)
                 }
 
-                Section("Items") {
+                Section {
                     ForEach($items) { $item in
                         OrderLineItemRow(
                             draft: $item,
@@ -199,6 +221,15 @@ struct OrderFormView: View {
                     } label: {
                         Label("Add item", systemImage: "plus")
                     }
+                } header: {
+                    Text("Items")
+                } footer: {
+                    HStack {
+                        Text("Total")
+                        Spacer()
+                        Text(runningTotal.formatted(.currency(code: "USD")))
+                    }
+                    .font(.subheadline.bold())
                 }
             }
             .navigationTitle("New Order")
