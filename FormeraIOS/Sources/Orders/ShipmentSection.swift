@@ -114,7 +114,10 @@ struct ShipmentSection: View {
                     Text(carrier.friendlyName).tag(Optional(carrier.carrierId))
                 }
             }
-            .onChange(of: selectedCarrierId) { _, _ in selectedServiceCode = nil }
+            .onChange(of: selectedCarrierId) { _, _ in
+                let stillValid = selectedCarrier?.services.contains { $0.serviceCode == selectedServiceCode } ?? false
+                if !stillValid { selectedServiceCode = nil }
+            }
 
             Picker("Service", selection: $selectedServiceCode) {
                 Text("Select a service").tag(String?.none)
@@ -166,9 +169,24 @@ struct ShipmentSection: View {
         defer { carriersLoading = false }
         do {
             carriers = try await viewModel.fetchCarriers()
+            applyDefaultCarrierAndService()
         } catch {
             errorMessage = apiErrorMessage(error)
         }
+    }
+
+    /// Defaults new shipments to USPS Priority Mail, the most common service for this shop.
+    /// Leaves the picker untouched if USPS isn't in the account's ShipStation carriers.
+    private func applyDefaultCarrierAndService() {
+        guard selectedCarrierId == nil,
+              let usps = carriers.first(where: { $0.friendlyName.localizedCaseInsensitiveContains("usps") })
+        else { return }
+        selectedCarrierId = usps.carrierId
+        let priorityMail = usps.services.first {
+            $0.name.localizedCaseInsensitiveContains("priority mail")
+                && !$0.name.localizedCaseInsensitiveContains("international")
+        }
+        selectedServiceCode = priorityMail?.serviceCode
     }
 
     private func performCreate() async {
