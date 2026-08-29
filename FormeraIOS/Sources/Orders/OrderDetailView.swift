@@ -37,18 +37,24 @@ struct OrderDetailView: View {
 
     var body: some View {
         List {
-            if let errorMessage {
-                Section { Text(errorMessage).foregroundStyle(.red) }
-            }
-
             Section {
                 LabeledContent("Customer", value: order.customerName)
                 LabeledContent("Status") { StatusBadge(order.status) }
-                if let discount = order.discount {
-                    LabeledContent("Discount", value: "\(discount)%")
+                if let discountPercent = order.discountPercent {
+                    LabeledContent("Discount", value: "\(discountPercent)%")
+                } else if let discountAmount = order.discountAmount {
+                    LabeledContent("Discount", value: discountAmount.asCurrency)
                 }
                 LabeledContent("Total", value: order.totalAmount.asCurrency)
                 LabeledContent("Date", value: order.createdAt.formattedAsDate())
+            }
+
+            Section("Notes") {
+                if order.notes.isEmpty {
+                    Text("No notes").foregroundStyle(.secondary)
+                } else {
+                    Text(order.notes)
+                }
             }
 
             Section("Shipping address") {
@@ -141,6 +147,7 @@ struct OrderDetailView: View {
             Button("Save") { Task { await saveEditingPrice() } }
             Button("Cancel", role: .cancel) {}
         }
+        .toast($errorMessage)
     }
 
     private func downloadInvoice() async {

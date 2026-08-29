@@ -31,12 +31,6 @@ struct CustomerEditView: View {
     var body: some View {
         NavigationStack {
             Form {
-                if let errorMessage {
-                    Section {
-                        Text(errorMessage).foregroundStyle(.red)
-                    }
-                }
-
                 Section("Contact") {
                     TextField("First name", text: $firstName)
                         .textContentType(.givenName)
@@ -64,6 +58,7 @@ struct CustomerEditView: View {
                 }
             }
             .disabled(isSubmitting)
+            .toast($errorMessage)
         }
     }
 

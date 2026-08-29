@@ -57,8 +57,18 @@ struct Order: Decodable, Identifiable, Hashable {
     let shippingAddress: AddressInput?
     let status: OrderStatus
     /// Whole-percent discount applied to the line item subtotal, 1-100.
-    /// nil means no discount was applied.
-    let discount: Int?
+    /// nil means no discount was applied. Mutually exclusive with
+    /// discountAmount -- at most one is set. Named discountPercent on the
+    /// Swift side for clarity even though the wire field is still just
+    /// "discount" (kept as-is server-side to avoid a breaking rename for
+    /// the web client, which reads/writes that same field).
+    let discountPercent: Int?
+    /// Fixed dollar-amount discount, as an alternative to discountPercent.
+    /// DRF serializes DecimalField as a string to avoid float precision loss.
+    let discountAmount: String?
+    /// Free-form staff notes about this order. Same treatment as
+    /// CustomerDetail.notes -- never nil, "" means no notes.
+    let notes: String
     // DRF serializes DecimalField as a string to avoid float precision loss.
     let totalAmount: String
     let items: [OrderLineItem]
@@ -73,4 +83,13 @@ struct Order: Decodable, Identifiable, Hashable {
     // DRF serializes DecimalField as a string; nil until a label exists.
     let shippingCost: String?
     let shippedAt: String?
+
+    private enum CodingKeys: String, CodingKey {
+        case id, orderNumber, customer, customerName, shippingAddress, status
+        case discountPercent = "discount"
+        case discountAmount, notes
+        case totalAmount, items, createdAt, updatedAt, shippingStatus
+        case carrierCode, carrierName, serviceCode, trackingNumber, labelUrl
+        case shippingCost, shippedAt
+    }
 }

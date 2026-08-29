@@ -17,13 +17,24 @@ struct OrderFormView: View {
         var label: String { self == .existing ? "Use existing address" : "Enter new address" }
     }
 
+    private enum DiscountType: String, CaseIterable, Identifiable {
+        case percent, amount
+        var id: String { rawValue }
+        var label: String { self == .percent ? "Percentage" : "Fixed amount" }
+    }
+
     @Environment(\.dismiss) private var dismiss
     private let apiClient = APIClient()
+
+    /// Quick picks shown before the user types anything -- mirrors
+    /// OrderLineItemRow's product search.
+    private static let quickPickCount = 6
 
     @State private var status: OrderStatus = .cashPickup
     @State private var customerMode: CustomerMode = .existing
     @State private var customerOptions: [Customer] = []
     @State private var customersLoading = false
+    @State private var customerSearchText = ""
     @State private var selectedCustomerId: Int?
     @State private var selectedCustomerDetail: CustomerDetail?
 
@@ -37,7 +48,11 @@ struct OrderFormView: View {
     @State private var address = AddressInput.empty
 
     @State private var includeDiscount = false
-    @State private var discount = 10
+    @State private var discountType: DiscountType = .percent
+    @State private var discountPercent = 10
+    @State private var discountAmountText = ""
+
+    @State private var notes = ""
 
     @State private var productOptions: [Product] = []
     @State private var productsLoading = false
@@ -46,6 +61,18 @@ struct OrderFormView: View {
     @State private var isSubmitting = false
     @State private var errorMessage: String?
 
+    private var selectedCustomer: Customer? {
+        guard let id = selectedCustomerId else { return nil }
+        return customerOptions.first { $0.id == id }
+    }
+
+    private var customerSearchResults: [Customer] {
+        guard !customerSearchText.isEmpty else { return Array(customerOptions.prefix(Self.quickPickCount)) }
+        return customerOptions.filter {
+            $0.fullName.localizedCaseInsensitiveContains(customerSearchText) || $0.phone.localizedCaseInsensitiveContains(customerSearchText)
+        }
+    }
+
     private var existingAddresses: [Address] { selectedCustomerDetail?.addresses ?? [] }
     private var canUseExistingAddress: Bool { customerMode == .existing && !existingAddresses.isEmpty }
 
@@ -53,16 +80,14 @@ struct OrderFormView: View {
         let customerValid = customerMode == .existing ? selectedCustomerId != nil : !newFirstName.isEmpty
         let addressValid = !includeAddress
             || (addressMode == .existing && canUseExistingAddress ? selectedAddressId != nil : true)
-        return customerValid && addressValid && items.allSatisfy(\.isValid)
+        let discountValid = !includeDiscount || discountType == .percent
+            || (Double(discountAmountText).map { $0 > 0 } ?? false)
+        return customerValid && addressValid && discountValid && items.allSatisfy(\.isValid)
     }
 
     var body: some View {
         NavigationStack {
             Form {
-                if let errorMessage {
-                    Section { Text(errorMessage).foregroundStyle(.red) }
-                }
-
                 Section("Payment") {
                     Picker("Payment", selection: $status) {
                         ForEach(OrderStatus.allCases) { Text($0.label).tag($0) }
@@ -76,10 +101,32 @@ struct OrderFormView: View {
                     .pickerStyle(.segmented)
 
                     if customerMode == .existing {
-                        Picker("Select a customer", selection: $selectedCustomerId) {
-                            Text(customersLoading ? "Loading…" : "Select a customer").tag(Int?.none)
-                            ForEach(customerOptions) { customer in
-                                Text(customer.fullName).tag(Optional(customer.id))
+                        if let selectedCustomer {
+                            HStack {
+                                Text("\(selectedCustomer.fullName) — \(selectedCustomer.phone)")
+                                Spacer()
+                                Button("Change") {
+                                    selectedCustomerId = nil
+                                    customerSearchText = ""
+                                }
+                                .font(.footnote)
+                            }
+                        } else {
+                            TextField(customersLoading ? "Loading…" : "Search customers", text: $customerSearchText)
+                                .autocorrectionDisabled()
+                                .textInputAutocapitalization(.never)
+                            ForEach(customerSearchResults) { customer in
+                                Button {
+                                    selectedCustomerId = customer.id
+                                    customerSearchText = ""
+                                } label: {
+                                    Text("\(customer.fullName) — \(customer.phone)")
+                                }
+                            }
+                            if !customerSearchText.isEmpty, customerSearchResults.isEmpty, !customersLoading {
+                                Text("No customers match \"\(customerSearchText)\"")
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
                             }
                         }
                     } else {
@@ -116,8 +163,25 @@ struct OrderFormView: View {
                 Section {
                     Toggle("Apply a discount", isOn: $includeDiscount.animation())
                     if includeDiscount {
-                        Stepper("Discount: \(discount)%", value: $discount, in: 1...100)
+                        Picker("Type", selection: $discountType) {
+                            ForEach(DiscountType.allCases) { Text($0.label).tag($0) }
+                        }
+                        .pickerStyle(.segmented)
+                        if discountType == .percent {
+                            Stepper("Discount: \(discountPercent)%", value: $discountPercent, in: 1...100)
+                        } else {
+                            HStack {
+                                Text("$")
+                                TextField("Amount", text: $discountAmountText)
+                                    .keyboardType(.decimalPad)
+                            }
+                        }
                     }
+                }
+
+                Section("Notes") {
+                    TextField("Notes", text: $notes, axis: .vertical)
+                        .lineLimit(3...10)
                 }
 
                 Section("Items") {
@@ -153,6 +217,7 @@ struct OrderFormView: View {
             .onChange(of: selectedCustomerId) { _, newValue in
                 Task { await loadCustomerDetail(newValue) }
             }
+            .toast($errorMessage)
         }
     }
 
@@ -214,7 +279,9 @@ struct OrderFormView: View {
                 : nil,
             shippingAddress: resolvedAddress,
             status: status,
-            discount: includeDiscount ? discount : nil,
+            discountPercent: includeDiscount && discountType == .percent ? discountPercent : nil,
+            discountAmount: includeDiscount && discountType == .amount ? Double(discountAmountText) : nil,
+            notes: notes,
             items: items.map { $0.toCreateInput() }
         )
 

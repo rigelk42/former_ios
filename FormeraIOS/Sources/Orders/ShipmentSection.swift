@@ -30,10 +30,6 @@ struct ShipmentSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            if let errorMessage {
-                Text(errorMessage).foregroundStyle(.red).font(.footnote)
-            }
-
             if canCreateShipment, showForm {
                 createForm
             } else if canCreateShipment {
@@ -59,6 +55,7 @@ struct ShipmentSection: View {
         } message: {
             Text("This cancels the live label with the carrier and cannot be undone.")
         }
+        .toast($errorMessage)
     }
 
     private var shippedSummary: some View {

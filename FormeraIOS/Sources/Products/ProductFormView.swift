@@ -19,12 +19,6 @@ struct ProductFormView: View {
     var body: some View {
         NavigationStack {
             Form {
-                if let errorMessage {
-                    Section {
-                        Text(errorMessage).foregroundStyle(.red)
-                    }
-                }
-
                 Section {
                     TextField("Name", text: $name)
                     TextField("SKU", text: $sku)
@@ -73,6 +67,7 @@ struct ProductFormView: View {
                 }
             }
             .disabled(isSubmitting)
+            .toast($errorMessage)
         }
     }
 

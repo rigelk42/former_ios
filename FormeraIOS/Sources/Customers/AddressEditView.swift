@@ -31,12 +31,6 @@ struct AddressEditView: View {
     var body: some View {
         NavigationStack {
             Form {
-                if let errorMessage {
-                    Section {
-                        Text(errorMessage).foregroundStyle(.red)
-                    }
-                }
-
                 Section {
                     AddressFormFields(address: $address)
                 }
@@ -53,6 +47,7 @@ struct AddressEditView: View {
                 }
             }
             .disabled(isSubmitting)
+            .toast($errorMessage)
         }
     }
 

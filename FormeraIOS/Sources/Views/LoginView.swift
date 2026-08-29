@@ -29,12 +29,6 @@ struct LoginView: View {
                     .onSubmit { Task { await submit() } }
             }
 
-            if let errorMessage {
-                Text(errorMessage)
-                    .font(.footnote)
-                    .foregroundStyle(.red)
-            }
-
             Button {
                 Task { await submit() }
             } label: {
@@ -51,6 +45,7 @@ struct LoginView: View {
         }
         .padding(24)
         .frame(maxWidth: 360)
+        .toast($errorMessage)
     }
 
     private func submit() async {

@@ -11,9 +11,18 @@ struct OrderEditView: View {
     @Environment(\.dismiss) private var dismiss
     private let apiClient = APIClient()
 
+    private enum DiscountType: String, CaseIterable, Identifiable {
+        case percent, amount
+        var id: String { rawValue }
+        var label: String { self == .percent ? "Percentage" : "Fixed amount" }
+    }
+
     @State private var status: OrderStatus
     @State private var includeDiscount: Bool
-    @State private var discount: Int
+    @State private var discountType: DiscountType
+    @State private var discountPercent: Int
+    @State private var discountAmountText: String
+    @State private var notes: String
     @State private var includeAddress: Bool
     @State private var address: AddressInput
     @State private var productOptions: [Product] = []
@@ -23,15 +32,22 @@ struct OrderEditView: View {
     @State private var errorMessage: String?
 
     private var hasExistingAddress: Bool { order.shippingAddress != nil }
-    private var isValid: Bool { items.allSatisfy(\.isValid) }
+    private var isValid: Bool {
+        let discountValid = !includeDiscount || discountType == .percent
+            || (Double(discountAmountText).map { $0 > 0 } ?? false)
+        return discountValid && items.allSatisfy(\.isValid)
+    }
 
     init(order: Order, viewModel: OrdersViewModel, onUpdated: @escaping (Order) -> Void) {
         self.order = order
         self.viewModel = viewModel
         self.onUpdated = onUpdated
         _status = State(initialValue: order.status)
-        _includeDiscount = State(initialValue: order.discount != nil)
-        _discount = State(initialValue: order.discount ?? 10)
+        _includeDiscount = State(initialValue: order.discountPercent != nil || order.discountAmount != nil)
+        _discountType = State(initialValue: order.discountAmount != nil ? .amount : .percent)
+        _discountPercent = State(initialValue: order.discountPercent ?? 10)
+        _discountAmountText = State(initialValue: order.discountAmount ?? "")
+        _notes = State(initialValue: order.notes)
         _includeAddress = State(initialValue: order.shippingAddress != nil)
         // Country has no field in AddressFormFields anymore (fixed to
         // "US"), so a pre-cleanup record's stale value (e.g. "United
@@ -46,10 +62,6 @@ struct OrderEditView: View {
     var body: some View {
         NavigationStack {
             Form {
-                if let errorMessage {
-                    Section { Text(errorMessage).foregroundStyle(.red) }
-                }
-
                 Section("Payment") {
                     Picker("Payment", selection: $status) {
                         ForEach(OrderStatus.allCases) { Text($0.label).tag($0) }
@@ -59,7 +71,19 @@ struct OrderEditView: View {
                 Section {
                     Toggle("Apply a discount", isOn: $includeDiscount.animation())
                     if includeDiscount {
-                        Stepper("Discount: \(discount)%", value: $discount, in: 1...100)
+                        Picker("Type", selection: $discountType) {
+                            ForEach(DiscountType.allCases) { Text($0.label).tag($0) }
+                        }
+                        .pickerStyle(.segmented)
+                        if discountType == .percent {
+                            Stepper("Discount: \(discountPercent)%", value: $discountPercent, in: 1...100)
+                        } else {
+                            HStack {
+                                Text("$")
+                                TextField("Amount", text: $discountAmountText)
+                                    .keyboardType(.decimalPad)
+                            }
+                        }
                     }
                 }
 
@@ -72,6 +96,11 @@ struct OrderEditView: View {
                             AddressFormFields(address: $address)
                         }
                     }
+                }
+
+                Section("Notes") {
+                    TextField("Notes", text: $notes, axis: .vertical)
+                        .lineLimit(3...10)
                 }
 
                 Section("Items") {
@@ -104,6 +133,7 @@ struct OrderEditView: View {
             }
             .disabled(isSubmitting)
             .task { await loadProductOptions() }
+            .toast($errorMessage)
         }
     }
 
@@ -119,11 +149,14 @@ struct OrderEditView: View {
         defer { isSubmitting = false }
 
         // Discount is always sent explicitly (never omitted), same as the
-        // web: unchecking the box after a discount was previously applied
-        // needs to explicitly clear it, not silently leave the old value.
+        // web: unchecking the box, or switching between percent/amount,
+        // needs to explicitly clear the inactive one rather than silently
+        // leaving its old value in place.
         let input = UpdateOrderInput(
             status: status,
-            discount: includeDiscount ? .value(discount) : .value(nil),
+            discountPercent: includeDiscount && discountType == .percent ? .value(discountPercent) : .value(nil),
+            discountAmount: includeDiscount && discountType == .amount ? .value(Double(discountAmountText)) : .value(nil),
+            notes: notes,
             shippingAddress: (hasExistingAddress || includeAddress) ? address : nil,
             items: items.map { $0.toUpdateInput() }
         )

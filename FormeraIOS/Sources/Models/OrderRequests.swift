@@ -29,8 +29,19 @@ struct CreateOrderInput: Encodable {
     var shippingAddress: AddressInput?
     // Omit to default to "cash_pickup" server-side.
     var status: OrderStatus?
-    var discount: Int?
+    // Mutually exclusive with discountAmount. Named discountPercent on the
+    // Swift side even though the wire field is still "discount" -- see
+    // Order.discountPercent.
+    var discountPercent: Int?
+    var discountAmount: Double?
+    var notes: String
     var items: [CreateOrderLineItemInput]
+
+    private enum CodingKeys: String, CodingKey {
+        case customerId, newCustomer, shippingAddress, status
+        case discountPercent = "discount"
+        case discountAmount, notes, items
+    }
 }
 
 /// Include "id" to edit an existing line item's quantity/unitPrice, or omit
@@ -53,28 +64,46 @@ struct UpdateOrderLineItemInput: Encodable {
 struct UpdateOrderInput: Encodable {
     var status: OrderStatus?
     /// .omit leaves the existing discount as-is; .value(nil) explicitly
-    /// clears it; .value(x) sets it. See Omittable.swift.
-    var discount: Omittable<Int> = .omit
+    /// clears it; .value(x) sets it. See Omittable.swift. Mutually
+    /// exclusive with discountAmount -- OrderEditView always sends both
+    /// explicitly (never .omit) so switching between percent/amount or
+    /// clearing the discount entirely can't leave the other one stale.
+    var discountPercent: Omittable<Int> = .omit
+    var discountAmount: Omittable<Double> = .omit
+    var notes: String
     var shippingAddress: AddressInput?
     var items: [UpdateOrderLineItemInput]?
 
     private enum CodingKeys: String, CodingKey {
-        case status, discount, shippingAddress, items
+        case status
+        case discountPercent = "discount"
+        case discountAmount, notes, shippingAddress, items
     }
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(status, forKey: .status)
+        try container.encode(notes, forKey: .notes)
         try container.encodeIfPresent(shippingAddress, forKey: .shippingAddress)
         try container.encodeIfPresent(items, forKey: .items)
-        switch discount {
+        switch discountPercent {
         case .omit:
             break
         case .value(let value):
             if let value {
-                try container.encode(value, forKey: .discount)
+                try container.encode(value, forKey: .discountPercent)
             } else {
-                try container.encodeNil(forKey: .discount)
+                try container.encodeNil(forKey: .discountPercent)
+            }
+        }
+        switch discountAmount {
+        case .omit:
+            break
+        case .value(let value):
+            if let value {
+                try container.encode(value, forKey: .discountAmount)
+            } else {
+                try container.encodeNil(forKey: .discountAmount)
             }
         }
     }
