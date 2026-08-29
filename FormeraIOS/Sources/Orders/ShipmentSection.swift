@@ -35,11 +35,11 @@ struct ShipmentSection: View {
             } else if canCreateShipment {
                 Button {
                     showForm = true
+                    Task { await loadCarriers() }
                 } label: {
                     Text(order.shippingAddress == nil ? "Add shipping address" : "Create Shipment")
                 }
                 .disabled(order.shippingAddress == nil)
-                .task { await loadCarriers() }
             } else {
                 shippedSummary
             }
@@ -78,9 +78,9 @@ struct ShipmentSection: View {
                 if order.shippingStatus == .voided {
                     Button("Create New Shipment") {
                         showForm = true
+                        Task { await loadCarriers() }
                     }
                     .disabled(order.shippingAddress == nil)
-                    .task { await loadCarriers() }
                 } else {
                     Button {
                         Task { await performRefresh() }
