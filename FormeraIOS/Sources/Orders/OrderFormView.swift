@@ -144,6 +144,12 @@ struct OrderFormView: View {
                                 } label: {
                                     Text("\(customer.fullName) — \(customer.phone)")
                                 }
+                                // See OrderLineItemRow's identical fix: a
+                                // Button sharing a row with a focused
+                                // TextField needs .plain or its first tap
+                                // just dismisses the keyboard instead of
+                                // firing.
+                                .buttonStyle(.plain)
                             }
                             if !customerSearchText.isEmpty, customerSearchResults.isEmpty, !customersLoading {
                                 Text("No customers match \"\(customerSearchText)\"")

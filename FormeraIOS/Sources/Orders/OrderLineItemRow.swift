@@ -64,6 +64,12 @@ struct OrderLineItemRow: View {
                     } label: {
                         Text("\(product.name) — \(product.price.asCurrency)")
                     }
+                    // Without an explicit style, a Button sharing a List row
+                    // with a focused TextField (as these do) can silently
+                    // eat its first tap resigning the field's keyboard
+                    // instead of firing its action -- .plain gives it its
+                    // own well-defined hit target so the tap always lands.
+                    .buttonStyle(.plain)
                 }
                 if !searchText.isEmpty, searchResults.isEmpty, !productsLoading {
                     Text("No products match \"\(searchText)\"")
@@ -79,6 +85,7 @@ struct OrderLineItemRow: View {
                     Label("Add new product", systemImage: "plus")
                 }
                 .font(.footnote)
+                .buttonStyle(.plain)
             }
 
             HStack {
