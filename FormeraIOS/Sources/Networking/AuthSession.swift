@@ -42,6 +42,7 @@ actor AuthSession {
             let response = try await APIClient(tokenStore: tokenStore).post(
                 "auth/refresh/",
                 body: RefreshRequest(refresh: refresh),
+                authenticated: false,
                 as: RefreshResponse.self
             )
             tokenStore.save(access: response.access, refresh: response.refresh)
