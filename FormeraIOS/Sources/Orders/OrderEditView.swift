@@ -17,6 +17,7 @@ struct OrderEditView: View {
         var label: String { self == .percent ? "Percentage" : "Fixed amount" }
     }
 
+    @State private var orderDate: Date
     @State private var status: OrderStatus
     @State private var includeDiscount: Bool
     @State private var discountType: DiscountType
@@ -64,6 +65,9 @@ struct OrderEditView: View {
         self.order = order
         self.viewModel = viewModel
         self.onUpdated = onUpdated
+        // Falls back to today if order.orderDate can't be parsed -- should
+        // never happen since the server always sends a valid DateField.
+        _orderDate = State(initialValue: DRFPlainDate.parse(order.orderDate) ?? Date())
         _status = State(initialValue: order.status)
         _includeDiscount = State(initialValue: order.discountPercent != nil || order.discountAmount != nil)
         _discountType = State(initialValue: order.discountAmount != nil ? .amount : .percent)
@@ -84,6 +88,10 @@ struct OrderEditView: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section {
+                    DatePicker("Order date", selection: $orderDate, displayedComponents: .date)
+                }
+
                 Section("Payment") {
                     Picker("Payment", selection: $status) {
                         ForEach(OrderStatus.allCases) { Text($0.label).tag($0) }
@@ -185,6 +193,7 @@ struct OrderEditView: View {
         // leaving its old value in place.
         let input = UpdateOrderInput(
             status: status,
+            orderDate: DRFPlainDate.format(orderDate),
             discountPercent: includeDiscount && discountType == .percent ? .value(discountPercent) : .value(nil),
             discountAmount: includeDiscount && discountType == .amount ? .value(Double(discountAmountText)) : .value(nil),
             notes: notes,

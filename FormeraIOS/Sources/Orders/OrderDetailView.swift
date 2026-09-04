@@ -46,7 +46,7 @@ struct OrderDetailView: View {
                     LabeledContent("Discount", value: discountAmount.asCurrency)
                 }
                 LabeledContent("Total", value: order.totalAmount.asCurrency)
-                LabeledContent("Date", value: order.createdAt.formattedAsDate())
+                LabeledContent("Date", value: order.orderDate.formattedAsPlainDate())
             }
 
             Section("Notes") {

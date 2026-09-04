@@ -4,6 +4,7 @@ import Foundation
 enum OrderStatus: String, Codable, CaseIterable, Identifiable {
     case paid
     case cashPickup = "cash_pickup"
+    case standby
     case venmo
     case referral
 
@@ -13,6 +14,7 @@ enum OrderStatus: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .paid: "Paid"
         case .cashPickup: "Cash pickup"
+        case .standby: "Standby"
         case .venmo: "Venmo"
         case .referral: "Referral"
         }
@@ -72,6 +74,11 @@ struct Order: Decodable, Identifiable, Hashable {
     // DRF serializes DecimalField as a string to avoid float precision loss.
     let totalAmount: String
     let items: [OrderLineItem]
+    /// The user-facing, editable order date -- a plain "YYYY-MM-DD" DRF
+    /// DateField with no time component, distinct from createdAt below
+    /// (an immutable audit timestamp). See DRFPlainDate for parsing this,
+    /// not DRFDate. Displayed and edited via OrderDetailView/OrderEditView.
+    let orderDate: String
     let createdAt: String
     let updatedAt: String
     let shippingStatus: ShippingStatus
@@ -88,7 +95,7 @@ struct Order: Decodable, Identifiable, Hashable {
         case id, orderNumber, customer, customerName, shippingAddress, status
         case discountPercent = "discount"
         case discountAmount, notes
-        case totalAmount, items, createdAt, updatedAt, shippingStatus
+        case totalAmount, items, orderDate, createdAt, updatedAt, shippingStatus
         case carrierCode, carrierName, serviceCode, trackingNumber, labelUrl
         case shippingCost, shippedAt
     }

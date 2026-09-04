@@ -63,6 +63,10 @@ struct UpdateOrderLineItemInput: Encodable {
 /// to edit again.
 struct UpdateOrderInput: Encodable {
     var status: OrderStatus?
+    /// "YYYY-MM-DD", same DRF DateField shape as Order.orderDate -- always
+    /// sent explicitly (never omitted), like notes below, since
+    /// OrderEditView's DatePicker always has a value.
+    var orderDate: String
     /// .omit leaves the existing discount as-is; .value(nil) explicitly
     /// clears it; .value(x) sets it. See Omittable.swift. Mutually
     /// exclusive with discountAmount -- OrderEditView always sends both
@@ -75,7 +79,7 @@ struct UpdateOrderInput: Encodable {
     var items: [UpdateOrderLineItemInput]?
 
     private enum CodingKeys: String, CodingKey {
-        case status
+        case status, orderDate
         case discountPercent = "discount"
         case discountAmount, notes, shippingAddress, items
     }
@@ -83,6 +87,7 @@ struct UpdateOrderInput: Encodable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(status, forKey: .status)
+        try container.encode(orderDate, forKey: .orderDate)
         try container.encode(notes, forKey: .notes)
         try container.encodeIfPresent(shippingAddress, forKey: .shippingAddress)
         try container.encodeIfPresent(items, forKey: .items)

@@ -11,6 +11,7 @@ struct StatusBadge: View {
         switch status {
         case .paid: color = .blue
         case .cashPickup: color = .green
+        case .standby: color = .orange
         case .venmo: color = .cyan
         case .referral: color = .purple
         }
