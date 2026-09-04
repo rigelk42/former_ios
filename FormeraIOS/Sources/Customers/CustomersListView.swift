@@ -7,6 +7,13 @@ struct CustomersListView: View {
     @State private var viewModel = CustomersViewModel()
     @State private var isCreatePresented = false
 
+    /// e.g. "Customers (1,000)" once totalCount has loaded, plain
+    /// "Customers" until then.
+    private var navigationTitleText: String {
+        guard let totalCount = viewModel.totalCount else { return "Customers" }
+        return "Customers (\(totalCount.formatted()))"
+    }
+
     var body: some View {
         List {
             ForEach(viewModel.filteredCustomers) { customer in
@@ -43,7 +50,7 @@ struct CustomersListView: View {
                 )
             }
         }
-        .navigationTitle("Customers")
+        .navigationTitle(navigationTitleText)
         .navigationDestination(for: Customer.self) { customer in
             CustomerDetailView(customerId: customer.id, viewModel: viewModel)
         }

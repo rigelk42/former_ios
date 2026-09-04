@@ -13,6 +13,11 @@ final class CustomersViewModel {
     private(set) var isLoading = false
     private(set) var isLoadingMore = false
     private(set) var errorMessage: String?
+    /// Total customer count, independent of how many pages have loaded so
+    /// far -- from a dedicated endpoint, since the list itself is cursor
+    /// paginated and deliberately doesn't return a total (see
+    /// DefaultCursorPagination on the backend). nil until refresh() loads it.
+    private(set) var totalCount: Int?
     var searchText = ""
 
     private var nextCursor: String?
@@ -48,6 +53,14 @@ final class CustomersViewModel {
         } catch {
             errorMessage = apiErrorMessage(error)
         }
+        await loadTotalCount()
+    }
+
+    /// Best-effort: a failure here shouldn't block the list itself from
+    /// showing (same reasoning as loadMoreIfNeeded's silent catch) --
+    /// totalCount just stays at its last known value, or nil on first load.
+    private func loadTotalCount() async {
+        totalCount = try? await apiClient.get("customers/count/", as: CustomerCountResponse.self).count
     }
 
     func loadMoreIfNeeded(current customer: Customer) async {
@@ -73,6 +86,7 @@ final class CustomersViewModel {
     func create(_ input: CreateCustomerInput) async throws -> CustomerDetail {
         let detail = try await apiClient.post("customers/", body: input, as: CustomerDetail.self)
         customers.insert(detail.asCustomer, at: 0)
+        if let totalCount { self.totalCount = totalCount + 1 }
         return detail
     }
 
@@ -87,6 +101,7 @@ final class CustomersViewModel {
     func delete(_ customer: Customer) async throws {
         try await apiClient.delete("customers/\(customer.id)/")
         customers.removeAll { $0.id == customer.id }
+        if let totalCount { self.totalCount = totalCount - 1 }
     }
 
     func deleteAddress(customerId: Int, addressId: Int) async throws {
@@ -107,4 +122,8 @@ final class CustomersViewModel {
     func fetchOptions() async throws -> [Customer] {
         try await apiClient.get("customers/?page_size=100", as: CursorPage<Customer>.self).results
     }
+}
+
+private struct CustomerCountResponse: Decodable {
+    let count: Int
 }
