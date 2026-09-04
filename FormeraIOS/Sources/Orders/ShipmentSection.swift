@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Replaces ShipmentPanel.tsx.
 struct ShipmentSection: View {
@@ -21,9 +22,19 @@ struct ShipmentSection: View {
     @State private var isRefreshing = false
     @State private var errorMessage: String?
     @State private var isVoidConfirming = false
+    @State private var trackingNumberCopied = false
     @Environment(\.openURL) private var openURL
 
     private var selectedCarrier: Carrier? { carriers.first { $0.carrierId == selectedCarrierId } }
+    /// Order only stores ShipStation's raw serviceCode (e.g.
+    /// "usps_priority_mail"), not a friendly name -- ShipStation namespaces
+    /// codes as "<carrier>_<service...>", so dropping that leading segment
+    /// and title-casing the rest turns it into "Priority Mail" for display.
+    private var formattedServiceCode: String {
+        let parts = order.serviceCode.split(separator: "_")
+        let serviceParts = parts.count > 1 ? parts.dropFirst() : parts[...]
+        return serviceParts.map { $0.capitalized }.joined(separator: " ")
+    }
     private var canCreateShipment: Bool {
         order.shippingStatus == .notShipped || order.shippingStatus == .voided
     }
@@ -62,23 +73,46 @@ struct ShipmentSection: View {
         VStack(alignment: .leading, spacing: 8) {
             StatusBadge(order.shippingStatus)
             if !order.carrierName.isEmpty {
-                Text("\(order.carrierName) — \(order.serviceCode)").font(.subheadline)
+                Text("\(order.carrierName) — \(formattedServiceCode)").font(.subheadline)
             }
             if !order.trackingNumber.isEmpty {
-                Text("Tracking: \(order.trackingNumber)").font(.subheadline)
+                // Staff copy this to text customers, so it needs to be a
+                // one-tap action rather than relying on long-press text
+                // selection -- the checkmark swap is the only feedback
+                // that it worked.
+                Button {
+                    UIPasteboard.general.string = order.trackingNumber
+                    trackingNumberCopied = true
+                    Task {
+                        try? await Task.sleep(for: .seconds(1.5))
+                        trackingNumberCopied = false
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Text("Tracking: \(order.trackingNumber)").font(.subheadline)
+                        Image(systemName: trackingNumberCopied ? "checkmark" : "doc.on.doc")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .buttonStyle(.plain)
             }
-            HStack {
+            VStack(spacing: 8) {
                 if let url = URL(string: order.labelUrl), !order.labelUrl.isEmpty {
                     Button {
                         openURL(url)
                     } label: {
                         Label("Print Label", systemImage: "printer")
+                            .frame(maxWidth: .infinity)
                     }
                 }
                 if order.shippingStatus == .voided {
-                    Button("Create New Shipment") {
+                    Button {
                         showForm = true
                         Task { await loadCarriers() }
+                    } label: {
+                        Text("Create New Shipment")
+                            .frame(maxWidth: .infinity)
                     }
                     .disabled(order.shippingAddress == nil)
                 } else {
@@ -87,12 +121,17 @@ struct ShipmentSection: View {
                     } label: {
                         if isRefreshing {
                             ProgressView()
+                                .frame(maxWidth: .infinity)
                         } else {
                             Label("Refresh Tracking", systemImage: "arrow.clockwise")
+                                .frame(maxWidth: .infinity)
                         }
                     }
-                    Button("Void Shipment", role: .destructive) {
+                    Button(role: .destructive) {
                         isVoidConfirming = true
+                    } label: {
+                        Text("Void Shipment")
+                            .frame(maxWidth: .infinity)
                     }
                     .disabled(isVoiding)
                 }
