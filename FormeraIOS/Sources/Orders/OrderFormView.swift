@@ -32,10 +32,23 @@ struct OrderFormView: View {
 
     @State private var status: OrderStatus = .cashPickup
     @State private var customerMode: CustomerMode = .existing
+    /// Quick picks shown before the user types anything -- a fixed
+    /// snapshot fetched once, not kept live. Actual search (see
+    /// customerSearchResults) hits the server instead of filtering this,
+    /// since this alone would silently miss any customer outside its
+    /// first 100 (e.g. one just created) or lacking whatever field a
+    /// naive client-side filter checked.
     @State private var customerOptions: [Customer] = []
     @State private var customersLoading = false
     @State private var customerSearchText = ""
+    @State private var customerSearchResultsList: [Customer] = []
+    @State private var isSearchingCustomers = false
     @State private var selectedCustomerId: Int?
+    /// The customer object backing selectedCustomerId, captured at
+    /// selection time -- kept separately rather than re-looked-up from
+    /// customerOptions/customerSearchResultsList, since neither is
+    /// guaranteed to still contain it once search results change.
+    @State private var selectedCustomerObject: Customer?
     @State private var selectedCustomerDetail: CustomerDetail?
 
     @State private var newFirstName = ""
@@ -61,16 +74,11 @@ struct OrderFormView: View {
     @State private var isSubmitting = false
     @State private var errorMessage: String?
 
-    private var selectedCustomer: Customer? {
-        guard let id = selectedCustomerId else { return nil }
-        return customerOptions.first { $0.id == id }
-    }
+    private var selectedCustomer: Customer? { selectedCustomerObject }
 
     private var customerSearchResults: [Customer] {
         guard !customerSearchText.isEmpty else { return Array(customerOptions.prefix(Self.quickPickCount)) }
-        return customerOptions.filter {
-            $0.fullName.localizedCaseInsensitiveContains(customerSearchText) || $0.phone.localizedCaseInsensitiveContains(customerSearchText)
-        }
+        return customerSearchResultsList
     }
 
     /// Client-side preview of the server-computed total, so staff can see
@@ -129,6 +137,7 @@ struct OrderFormView: View {
                                 Spacer()
                                 Button("Change") {
                                     selectedCustomerId = nil
+                                    selectedCustomerObject = nil
                                     customerSearchText = ""
                                 }
                                 .font(.footnote)
@@ -140,6 +149,7 @@ struct OrderFormView: View {
                             ForEach(customerSearchResults) { customer in
                                 Button {
                                     selectedCustomerId = customer.id
+                                    selectedCustomerObject = customer
                                     customerSearchText = ""
                                 } label: {
                                     Text("\(customer.fullName) — \(customer.phone)")
@@ -151,7 +161,7 @@ struct OrderFormView: View {
                                 // firing.
                                 .buttonStyle(.plain)
                             }
-                            if !customerSearchText.isEmpty, customerSearchResults.isEmpty, !customersLoading {
+                            if !customerSearchText.isEmpty, customerSearchResults.isEmpty, !isSearchingCustomers {
                                 Text("No customers match \"\(customerSearchText)\"")
                                     .font(.footnote)
                                     .foregroundStyle(.secondary)
@@ -251,6 +261,18 @@ struct OrderFormView: View {
             }
             .disabled(isSubmitting)
             .task { await loadOptions() }
+            .task(id: customerSearchText) {
+                // Debounced, same as CustomersListView's search -- waits
+                // for a pause in typing rather than hitting the server
+                // per keystroke.
+                guard !customerSearchText.isEmpty else {
+                    customerSearchResultsList = []
+                    return
+                }
+                try? await Task.sleep(for: .milliseconds(300))
+                guard !Task.isCancelled else { return }
+                await performCustomerSearch()
+            }
             .onChange(of: selectedCustomerId) { _, newValue in
                 Task { await loadCustomerDetail(newValue) }
             }
@@ -274,6 +296,29 @@ struct OrderFormView: View {
         if let defaultProduct = productOptions.first(where: { $0.name == "Bacteriostatic Water" }) {
             items[0].selectedProductId = defaultProduct.id
             items[0].unitPriceText = defaultProduct.defaultOrderUnitPrice
+        }
+    }
+
+    /// Searches the server (matched against first/last name only -- see
+    /// CustomerListCreateView) for the current customerSearchText, rather
+    /// than filtering the fixed customerOptions snapshot from loadOptions()
+    /// -- that snapshot only ever holds the first 100 customers by id, so
+    /// it silently misses anyone created since, or past that first page.
+    private func performCustomerSearch() async {
+        let query = customerSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else {
+            customerSearchResultsList = []
+            return
+        }
+        isSearchingCustomers = true
+        defer { isSearchingCustomers = false }
+        do {
+            let encoded = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
+            customerSearchResultsList = try await apiClient.get(
+                "customers/?search=\(encoded)&page_size=100", as: CursorPage<Customer>.self
+            ).results
+        } catch {
+            errorMessage = apiErrorMessage(error)
         }
     }
 
