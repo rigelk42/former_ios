@@ -18,7 +18,12 @@ struct OrderRow: View {
                     Text(order.orderDate.formattedAsPlainDate())
                         .font(showCustomerName ? .caption : .body)
                         .foregroundStyle(showCustomerName ? .secondary : .primary)
-                    StatusBadge(order.status)
+                    HStack(spacing: 4) {
+                        StatusBadge(order.status)
+                        if order.finalizedAt == nil {
+                            StatusBadge(finalizedAt: nil)
+                        }
+                    }
                 }
                 Spacer()
                 Text(order.totalAmount.asCurrency)

@@ -87,6 +87,12 @@ final class OrdersViewModel {
         removeFromWeeks(orderId: order.id)
     }
 
+    func finalizeOrder(orderId: Int) async throws -> Order {
+        let updated = try await apiClient.post("orders/\(orderId)/finalize/", body: EmptyBody(), as: Order.self)
+        replace(updated)
+        return updated
+    }
+
     func createShipment(orderId: Int, input: CreateShipmentInput) async throws -> Order {
         let updated = try await apiClient.post("orders/\(orderId)/shipment/", body: input, as: Order.self)
         replace(updated)

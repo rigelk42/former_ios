@@ -20,6 +20,15 @@ struct OrderDetailView: View {
     @State private var editingPriceText = ""
     @State private var isEditingPrice = false
 
+    // Full CustomerDetail (name/phone/notes), fetched on demand -- the
+    // order only carries the denormalized customerName, not enough to
+    // populate CustomerEditView's form.
+    private let customersViewModel = CustomersViewModel()
+    @State private var editingCustomerDetail: CustomerDetail?
+    @State private var isLoadingCustomerDetail = false
+
+    @State private var isFinalizing = false
+
     @Environment(\.dismiss) private var dismiss
 
     init(order: Order, viewModel: OrdersViewModel) {
@@ -38,8 +47,39 @@ struct OrderDetailView: View {
     var body: some View {
         List {
             Section {
-                LabeledContent("Customer", value: order.customerName)
+                LabeledContent("Customer") {
+                    Button {
+                        Task { await loadCustomerForEditing() }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(order.customerName)
+                            if isLoadingCustomerDetail {
+                                ProgressView().controlSize(.mini)
+                            } else {
+                                Image(systemName: "pencil")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isLoadingCustomerDetail)
+                }
                 LabeledContent("Status") { StatusBadge(order.status) }
+                LabeledContent("Finalized") { StatusBadge(finalizedAt: order.finalizedAt) }
+                if order.finalizedAt == nil {
+                    Button {
+                        Task { await performFinalize() }
+                    } label: {
+                        if isFinalizing {
+                            ProgressView().frame(maxWidth: .infinity)
+                        } else {
+                            Text("Finalize Order").frame(maxWidth: .infinity)
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(isFinalizing)
+                }
                 if let discountPercent = order.discountPercent {
                     LabeledContent("Discount", value: "\(discountPercent)%")
                 } else if let discountAmount = order.discountAmount {
@@ -127,6 +167,11 @@ struct OrderDetailView: View {
                 order = updated
             }
         }
+        .sheet(item: $editingCustomerDetail) { detail in
+            CustomerEditView(detail: detail, viewModel: customersViewModel) { updated in
+                order.customerName = updated.fullName
+            }
+        }
         .sheet(isPresented: $isSharePresented) {
             if let invoiceURL {
                 ActivityView(items: [invoiceURL])
@@ -148,6 +193,27 @@ struct OrderDetailView: View {
             Button("Cancel", role: .cancel) {}
         }
         .toast($errorMessage)
+    }
+
+    private func performFinalize() async {
+        isFinalizing = true
+        defer { isFinalizing = false }
+        do {
+            order = try await viewModel.finalizeOrder(orderId: order.id)
+        } catch {
+            errorMessage = apiErrorMessage(error)
+        }
+    }
+
+    private func loadCustomerForEditing() async {
+        guard !isLoadingCustomerDetail else { return }
+        isLoadingCustomerDetail = true
+        defer { isLoadingCustomerDetail = false }
+        do {
+            editingCustomerDetail = try await customersViewModel.fetchDetail(order.customer)
+        } catch {
+            errorMessage = apiErrorMessage(error)
+        }
     }
 
     private func downloadInvoice() async {

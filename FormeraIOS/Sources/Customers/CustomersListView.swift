@@ -41,11 +41,12 @@ struct CustomersListView: View {
         }
         .listStyle(.plain)
         .overlay {
-            if viewModel.isLoading && viewModel.customers.isEmpty {
+            if (viewModel.isLoading && viewModel.customers.isEmpty && viewModel.searchText.isEmpty)
+                || (viewModel.isSearching && viewModel.searchResults == nil) {
                 ProgressView()
-            } else if viewModel.customers.isEmpty {
+            } else if viewModel.filteredCustomers.isEmpty {
                 ContentUnavailableView(
-                    viewModel.errorMessage ?? "No customers yet",
+                    viewModel.errorMessage ?? (viewModel.searchText.isEmpty ? "No customers yet" : "No matching customers"),
                     systemImage: viewModel.errorMessage == nil ? "person.2" : "exclamationmark.triangle"
                 )
             }
@@ -55,6 +56,17 @@ struct CustomersListView: View {
             CustomerDetailView(customerId: customer.id, viewModel: viewModel)
         }
         .searchable(text: $viewModel.searchText, prompt: "Search by name")
+        .task(id: viewModel.searchText) {
+            // Debounced: waits for a pause in typing before hitting the
+            // server, rather than firing a request per keystroke. Task
+            // cancellation (SwiftUI cancels the previous .task(id:) run
+            // when searchText changes again) makes the sleep double as
+            // the debounce timer -- a keystroke within 300ms cancels the
+            // pending search before it fires.
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled else { return }
+            await viewModel.performSearch()
+        }
         .refreshable { await viewModel.refresh() }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {

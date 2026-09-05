@@ -17,6 +17,16 @@ struct StatusBadge: View {
         }
     }
 
+    init(finalizedAt: String?) {
+        if finalizedAt != nil {
+            text = "Final"
+            color = .green
+        } else {
+            text = "Pending"
+            color = .orange
+        }
+    }
+
     init(_ status: ShippingStatus) {
         text = status.label
         switch status {

@@ -19,6 +19,16 @@ final class CustomersViewModel {
     /// DefaultCursorPagination on the backend). nil until refresh() loads it.
     private(set) var totalCount: Int?
     var searchText = ""
+    /// Server-side search results for the current searchText (see
+    /// performSearch()) -- nil means "no active search," so
+    /// filteredCustomers falls back to the locally paginated `customers`.
+    /// A plain client-side filter over `customers` alone would miss any
+    /// match sitting on a page that hasn't been scrolled into view yet --
+    /// which read as, e.g., "customers with no phone number don't show up
+    /// in search," when really it was just about which page they happened
+    /// to land on.
+    private(set) var searchResults: [Customer]?
+    private(set) var isSearching = false
 
     private var nextCursor: String?
     private var hasLoadedOnce = false
@@ -28,12 +38,31 @@ final class CustomersViewModel {
         self.apiClient = apiClient
     }
 
-    /// Filters the already-loaded pages client-side -- same scope as the
-    /// web's column search (getColumnSearchProps), which also only filters
-    /// the currently-loaded page rather than hitting a server search endpoint.
     var filteredCustomers: [Customer] {
         guard !searchText.isEmpty else { return customers }
-        return customers.filter { $0.fullName.localizedCaseInsensitiveContains(searchText) }
+        return searchResults ?? []
+    }
+
+    /// Re-runs the search against the backend (?search=, matched against
+    /// first/last name only -- see CustomerListCreateView) for the current
+    /// searchText. Call this (debounced) whenever searchText changes;
+    /// clears searchResults back to nil once the query is emptied.
+    func performSearch() async {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else {
+            searchResults = nil
+            return
+        }
+        isSearching = true
+        defer { isSearching = false }
+        do {
+            let encoded = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
+            searchResults = try await apiClient.get(
+                "customers/?search=\(encoded)&page_size=100", as: CursorPage<Customer>.self
+            ).results
+        } catch {
+            errorMessage = apiErrorMessage(error)
+        }
     }
 
     func loadInitial() async {

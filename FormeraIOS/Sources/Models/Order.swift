@@ -55,7 +55,11 @@ struct Order: Decodable, Identifiable, Hashable {
     let id: Int
     let orderNumber: String
     let customer: Int
-    let customerName: String
+    // var, not let -- OrderDetailView patches this in place after editing
+    // the customer's name, the same way it already reflects other
+    // in-place edits without a dedicated single-order GET endpoint to
+    // refetch from.
+    var customerName: String
     let shippingAddress: AddressInput?
     let status: OrderStatus
     /// Whole-percent discount applied to the line item subtotal, 1-100.
@@ -81,6 +85,10 @@ struct Order: Decodable, Identifiable, Hashable {
     let orderDate: String
     let createdAt: String
     let updatedAt: String
+    /// nil ("pending") until a staff member finalizes the order (see
+    /// OrdersViewModel.finalizeOrder) -- only then, and only for Venmo/Cash
+    /// Pickup orders, does it get pushed to ShipStation.
+    let finalizedAt: String?
     let shippingStatus: ShippingStatus
     let carrierCode: String
     let carrierName: String
@@ -95,7 +103,7 @@ struct Order: Decodable, Identifiable, Hashable {
         case id, orderNumber, customer, customerName, shippingAddress, status
         case discountPercent = "discount"
         case discountAmount, notes
-        case totalAmount, items, orderDate, createdAt, updatedAt, shippingStatus
+        case totalAmount, items, orderDate, createdAt, updatedAt, finalizedAt, shippingStatus
         case carrierCode, carrierName, serviceCode, trackingNumber, labelUrl
         case shippingCost, shippedAt
     }
