@@ -30,7 +30,7 @@ struct OrderFormView: View {
     /// OrderLineItemRow's product search.
     private static let quickPickCount = 6
 
-    @State private var status: OrderStatus = .cashPickup
+    @State private var paymentMethod: PaymentMethod = .cashPickup
     @State private var customerMode: CustomerMode = .existing
     /// Quick picks shown before the user types anything -- a fixed
     /// snapshot fetched once, not kept live. Actual search (see
@@ -119,8 +119,8 @@ struct OrderFormView: View {
         NavigationStack {
             Form {
                 Section("Payment") {
-                    Picker("Payment", selection: $status) {
-                        ForEach(OrderStatus.allCases) { Text($0.label).tag($0) }
+                    Picker("Payment", selection: $paymentMethod) {
+                        ForEach(PaymentMethod.allCases) { Text($0.label).tag($0) }
                     }
                 }
 
@@ -360,7 +360,7 @@ struct OrderFormView: View {
                 ? NewCustomerInput(firstName: newFirstName, lastName: newLastName, phone: newPhone)
                 : nil,
             shippingAddress: resolvedAddress,
-            status: status,
+            paymentMethod: paymentMethod,
             discountPercent: includeDiscount && discountType == .percent ? discountPercent : nil,
             discountAmount: includeDiscount && discountType == .amount ? Double(discountAmountText) : nil,
             notes: notes,

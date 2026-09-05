@@ -65,7 +65,7 @@ struct OrderDetailView: View {
                     .buttonStyle(.plain)
                     .disabled(isLoadingCustomerDetail)
                 }
-                LabeledContent("Type") { StatusBadge(order.status) }
+                LabeledContent("Type") { StatusBadge(order.paymentMethod) }
                 LabeledContent("Status") { StatusBadge(finalizedAt: order.finalizedAt) }
                 if order.finalizedAt == nil {
                     Button {

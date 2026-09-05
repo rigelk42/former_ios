@@ -1,7 +1,9 @@
 import Foundation
 
-/// Mirrors orders/types.ts.
-enum OrderStatus: String, Codable, CaseIterable, Identifiable {
+/// Mirrors orders/types.ts. Named to match the backend's
+/// Order.PaymentMethod -- how the customer paid, distinct from
+/// Order.finalized_at's separate pending/final concept.
+enum PaymentMethod: String, Codable, CaseIterable, Identifiable {
     case paid
     case cashPickup = "cash_pickup"
     case standby
@@ -61,7 +63,7 @@ struct Order: Decodable, Identifiable, Hashable {
     // refetch from.
     var customerName: String
     let shippingAddress: AddressInput?
-    let status: OrderStatus
+    let paymentMethod: PaymentMethod
     /// Whole-percent discount applied to the line item subtotal, 1-100.
     /// nil means no discount was applied. Mutually exclusive with
     /// discountAmount -- at most one is set. Named discountPercent on the
@@ -100,7 +102,7 @@ struct Order: Decodable, Identifiable, Hashable {
     let shippedAt: String?
 
     private enum CodingKeys: String, CodingKey {
-        case id, orderNumber, customer, customerName, shippingAddress, status
+        case id, orderNumber, customer, customerName, shippingAddress, paymentMethod
         case discountPercent = "discount"
         case discountAmount, notes
         case totalAmount, items, orderDate, createdAt, updatedAt, finalizedAt, shippingStatus

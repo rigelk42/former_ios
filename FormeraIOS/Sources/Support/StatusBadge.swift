@@ -6,9 +6,9 @@ struct StatusBadge: View {
     let text: String
     let color: Color
 
-    init(_ status: OrderStatus) {
-        text = status.label
-        switch status {
+    init(_ paymentMethod: PaymentMethod) {
+        text = paymentMethod.label
+        switch paymentMethod {
         case .paid: color = .blue
         case .cashPickup: color = .green
         case .standby: color = .orange

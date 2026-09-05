@@ -18,7 +18,7 @@ struct OrderEditView: View {
     }
 
     @State private var orderDate: Date
-    @State private var status: OrderStatus
+    @State private var paymentMethod: PaymentMethod
     @State private var includeDiscount: Bool
     @State private var discountType: DiscountType
     @State private var discountPercent: Int
@@ -68,7 +68,7 @@ struct OrderEditView: View {
         // Falls back to today if order.orderDate can't be parsed -- should
         // never happen since the server always sends a valid DateField.
         _orderDate = State(initialValue: DRFPlainDate.parse(order.orderDate) ?? Date())
-        _status = State(initialValue: order.status)
+        _paymentMethod = State(initialValue: order.paymentMethod)
         _includeDiscount = State(initialValue: order.discountPercent != nil || order.discountAmount != nil)
         _discountType = State(initialValue: order.discountAmount != nil ? .amount : .percent)
         _discountPercent = State(initialValue: order.discountPercent ?? 10)
@@ -93,8 +93,8 @@ struct OrderEditView: View {
                 }
 
                 Section("Payment") {
-                    Picker("Payment", selection: $status) {
-                        ForEach(OrderStatus.allCases) { Text($0.label).tag($0) }
+                    Picker("Payment", selection: $paymentMethod) {
+                        ForEach(PaymentMethod.allCases) { Text($0.label).tag($0) }
                     }
                 }
 
@@ -192,7 +192,7 @@ struct OrderEditView: View {
         // needs to explicitly clear the inactive one rather than silently
         // leaving its old value in place.
         let input = UpdateOrderInput(
-            status: status,
+            paymentMethod: paymentMethod,
             orderDate: DRFPlainDate.format(orderDate),
             discountPercent: includeDiscount && discountType == .percent ? .value(discountPercent) : .value(nil),
             discountAmount: includeDiscount && discountType == .amount ? .value(Double(discountAmountText)) : .value(nil),

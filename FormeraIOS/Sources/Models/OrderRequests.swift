@@ -28,7 +28,7 @@ struct CreateOrderInput: Encodable {
     var newCustomer: NewCustomerInput?
     var shippingAddress: AddressInput?
     // Omit to default to "cash_pickup" server-side.
-    var status: OrderStatus?
+    var paymentMethod: PaymentMethod?
     // Mutually exclusive with discountAmount. Named discountPercent on the
     // Swift side even though the wire field is still "discount" -- see
     // Order.discountPercent.
@@ -38,7 +38,7 @@ struct CreateOrderInput: Encodable {
     var items: [CreateOrderLineItemInput]
 
     private enum CodingKeys: String, CodingKey {
-        case customerId, newCustomer, shippingAddress, status
+        case customerId, newCustomer, shippingAddress, paymentMethod
         case discountPercent = "discount"
         case discountAmount, notes, items
     }
@@ -62,7 +62,7 @@ struct UpdateOrderLineItemInput: Encodable {
 /// OrderDetailView.patch/OrderUpdateSerializer) -- void the shipment first
 /// to edit again.
 struct UpdateOrderInput: Encodable {
-    var status: OrderStatus?
+    var paymentMethod: PaymentMethod?
     /// "YYYY-MM-DD", same DRF DateField shape as Order.orderDate -- always
     /// sent explicitly (never omitted), like notes below, since
     /// OrderEditView's DatePicker always has a value.
@@ -79,14 +79,14 @@ struct UpdateOrderInput: Encodable {
     var items: [UpdateOrderLineItemInput]?
 
     private enum CodingKeys: String, CodingKey {
-        case status, orderDate
+        case paymentMethod, orderDate
         case discountPercent = "discount"
         case discountAmount, notes, shippingAddress, items
     }
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encodeIfPresent(status, forKey: .status)
+        try container.encodeIfPresent(paymentMethod, forKey: .paymentMethod)
         try container.encode(orderDate, forKey: .orderDate)
         try container.encode(notes, forKey: .notes)
         try container.encodeIfPresent(shippingAddress, forKey: .shippingAddress)

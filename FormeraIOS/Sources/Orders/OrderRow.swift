@@ -19,7 +19,7 @@ struct OrderRow: View {
                         .font(showCustomerName ? .caption : .body)
                         .foregroundStyle(showCustomerName ? .secondary : .primary)
                     HStack(spacing: 4) {
-                        StatusBadge(order.status)
+                        StatusBadge(order.paymentMethod)
                         if order.finalizedAt == nil {
                             StatusBadge(finalizedAt: nil)
                         }
