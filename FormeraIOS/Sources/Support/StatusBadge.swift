@@ -19,7 +19,7 @@ struct StatusBadge: View {
 
     init(finalizedAt: String?) {
         if finalizedAt != nil {
-            text = "Final"
+            text = "Finalized"
             color = .green
         } else {
             text = "Pending"
