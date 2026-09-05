@@ -114,16 +114,6 @@ struct UpdateOrderInput: Encodable {
     }
 }
 
-struct CreateShipmentInput: Encodable {
-    var carrierId: String
-    var carrierName: String
-    var serviceCode: String
-    var weightOz: Double
-    var length: Double
-    var width: Double
-    var height: Double
-}
-
 /// Overrides a single line item's price on an already-placed order,
 /// recomputing the order's total server-side.
 struct UpdateLineItemPriceInput: Encodable {

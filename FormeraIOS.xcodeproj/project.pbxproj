@@ -33,7 +33,6 @@
 		7AA93EC7534C21DCCC37F257 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD964ABE09117318693D9FA /* User.swift */; };
 		7AD5655A2B322C3B146DC896 /* Locations.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6D8126FFED1F7E6E7545837 /* Locations.swift */; };
 		7FADB9FE03BBDBF1A11A7191 /* PhoneFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3477BB686A7CCE3EAD7EC967 /* PhoneFormatting.swift */; };
-		889D95082627FDADC5D7B4FF /* Carrier.swift in Sources */ = {isa = PBXBuildFile; fileRef = E21084D5E95B705D29B0E3BE /* Carrier.swift */; };
 		893693C13337245DEFDC8344 /* OrderFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A421CA4345067B9BF13D160 /* OrderFormView.swift */; };
 		916DE93FD4E6B610D8D5F096 /* ProductsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFE909F620DC5F33FC1D221 /* ProductsViewModel.swift */; };
 		91910C3B3C01AC7F727E1EBC /* CustomerEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54A2B4FDA35760AD92C4B8A2 /* CustomerEditView.swift */; };
@@ -114,7 +113,6 @@
 		DDC3E0EDEC33E7E11CA07ABA /* AppShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShellView.swift; sourceTree = "<group>"; };
 		DF2FB17E7CEF8AC38B77BA34 /* AddressInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressInput.swift; sourceTree = "<group>"; };
 		E193E5BF2BED76F3F5E3C8DD /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
-		E21084D5E95B705D29B0E3BE /* Carrier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Carrier.swift; sourceTree = "<group>"; };
 		EC8A7CF8B8651313CF7C17D3 /* ToastModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastModifier.swift; sourceTree = "<group>"; };
 		EEFD3D1D8893A906443932E8 /* TokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStore.swift; sourceTree = "<group>"; };
 		F3D3281EDCEA066C070AAAA4 /* Omittable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Omittable.swift; sourceTree = "<group>"; };
@@ -151,7 +149,6 @@
 			isa = PBXGroup;
 			children = (
 				DF2FB17E7CEF8AC38B77BA34 /* AddressInput.swift */,
-				E21084D5E95B705D29B0E3BE /* Carrier.swift */,
 				27B8342526578625CF6A4CB2 /* Customer.swift */,
 				A3518612F3E0C67167792A37 /* CustomerRequests.swift */,
 				F3D3281EDCEA066C070AAAA4 /* Omittable.swift */,
@@ -371,7 +368,6 @@
 				CD2DA163368588D39FC291BA /* AuthModels.swift in Sources */,
 				353951228175414A002D9E9A /* AuthService.swift in Sources */,
 				A72D62C12CD7A2F62B974D2B /* AuthSession.swift in Sources */,
-				889D95082627FDADC5D7B4FF /* Carrier.swift in Sources */,
 				DB9673710641B9332EDC22AF /* CurrencyFormatting.swift in Sources */,
 				63D7A59C46342C288A8587BE /* Customer.swift in Sources */,
 				6ECC266C9512D9F821BA4BCC /* CustomerDetailView.swift in Sources */,
@@ -454,7 +450,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = TT4TYJV7FD;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -468,7 +464,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0.7;
+				MARKETING_VERSION = 1.0.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -551,7 +547,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = TT4TYJV7FD;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -571,7 +567,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0.7;
+				MARKETING_VERSION = 1.0.8;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;

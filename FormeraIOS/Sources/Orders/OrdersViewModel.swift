@@ -93,26 +93,10 @@ final class OrdersViewModel {
         return updated
     }
 
-    func createShipment(orderId: Int, input: CreateShipmentInput) async throws -> Order {
-        let updated = try await apiClient.post("orders/\(orderId)/shipment/", body: input, as: Order.self)
-        replace(updated)
-        return updated
-    }
-
     func refreshShipment(orderId: Int) async throws -> Order {
         let updated = try await apiClient.post("orders/\(orderId)/shipment/refresh/", body: EmptyBody(), as: Order.self)
         replace(updated)
         return updated
-    }
-
-    func voidShipment(orderId: Int) async throws -> Order {
-        let updated = try await apiClient.post("orders/\(orderId)/shipment/void/", body: EmptyBody(), as: Order.self)
-        replace(updated)
-        return updated
-    }
-
-    func fetchCarriers() async throws -> [Carrier] {
-        try await apiClient.get("shipstation/carriers/", as: CarrierListResponse.self).carriers
     }
 
     func fetchInvoice(orderId: Int) async throws -> (data: Data, filename: String?) {
