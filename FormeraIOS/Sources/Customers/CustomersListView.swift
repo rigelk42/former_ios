@@ -39,7 +39,7 @@ struct CustomersListView: View {
                 .listRowSeparator(.hidden)
             }
         }
-        .listStyle(.plain)
+        .listStyle(.insetGrouped)
         .overlay {
             if (viewModel.isLoading && viewModel.customers.isEmpty && viewModel.searchText.isEmpty)
                 || (viewModel.isSearching && viewModel.searchResults == nil) {

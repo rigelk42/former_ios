@@ -9,11 +9,11 @@ struct LoginView: View {
     @State private var errorMessage: String?
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 28) {
             Image("FormeraLogo")
                 .resizable()
                 .scaledToFit()
-                .frame(height: 54)
+                .frame(height: 110)
 
             VStack(spacing: 12) {
                 TextField("Email", text: $email)

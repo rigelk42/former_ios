@@ -131,7 +131,7 @@ struct OrderDetailView: View {
                             editingPriceText = item.unitPrice
                             isEditingPrice = true
                         }
-                        .tint(.blue)
+                        .tint(.accentColor)
                     }
                 }
             }

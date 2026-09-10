@@ -34,7 +34,7 @@ struct ProductsListView: View {
                 .listRowSeparator(.hidden)
             }
         }
-        .listStyle(.plain)
+        .listStyle(.insetGrouped)
         .overlay {
             if viewModel.isLoading && viewModel.products.isEmpty {
                 ProgressView()

@@ -21,6 +21,8 @@ struct OrdersListView: View {
                         Text(weekLabel(week))
                         Spacer()
                         Text("Total: \(weekTotal(week))")
+                            .fontWeight(.bold)
+                            .foregroundStyle(Color.accentColor)
                     }
                 }
             }
@@ -34,7 +36,7 @@ struct OrdersListView: View {
                 .listRowSeparator(.hidden)
             }
         }
-        .listStyle(.plain)
+        .listStyle(.insetGrouped)
         .overlay {
             if viewModel.isLoading && viewModel.weeks.isEmpty {
                 ProgressView()

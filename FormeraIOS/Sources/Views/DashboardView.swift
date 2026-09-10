@@ -49,18 +49,28 @@ struct DashboardView: View {
 private struct SalesPieChart: View {
     let items: [SalesSummaryItem]
 
+    // A fixed, explicit palette (rather than letting Charts auto-assign
+    // colors via foregroundStyle(by:)) so each product's pie slice and its
+    // legend-row dot are guaranteed to match -- cycles if there are more
+    // products than colors.
+    private static let palette: [Color] = [.blue, .green, .orange, .purple, .red, .cyan, .yellow, .indigo, .mint, .brown]
+
     private var total: Decimal { items.reduce(Decimal(0)) { $0 + $1.revenueValue } }
+
+    private func color(at index: Int) -> Color {
+        Self.palette[index % Self.palette.count]
+    }
 
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                Chart(items) { item in
+                Chart(Array(items.enumerated()), id: \.element.id) { index, item in
                     SectorMark(
                         angle: .value("Revenue", item.revenueValue),
                         innerRadius: .ratio(0.6),
                         angularInset: 1.5
                     )
-                    .foregroundStyle(by: .value("Product", item.productName))
+                    .foregroundStyle(color(at: index))
                     .cornerRadius(4)
                 }
                 .chartLegend(.hidden)
@@ -70,6 +80,7 @@ private struct SalesPieChart: View {
                     VStack {
                         Text(total.formatted(.currency(code: "USD")))
                             .font(.title2.bold())
+                            .foregroundStyle(Color.accentColor)
                         Text("Total sales")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -77,8 +88,11 @@ private struct SalesPieChart: View {
                 }
 
                 VStack(spacing: 8) {
-                    ForEach(items) { item in
+                    ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                         HStack {
+                            Circle()
+                                .fill(color(at: index))
+                                .frame(width: 8, height: 8)
                             Text(item.productName)
                             Spacer()
                             Text("\(item.quantity)x")

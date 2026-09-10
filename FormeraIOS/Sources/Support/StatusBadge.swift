@@ -9,7 +9,7 @@ struct StatusBadge: View {
     init(_ paymentMethod: PaymentMethod) {
         text = paymentMethod.label
         switch paymentMethod {
-        case .paid: color = .blue
+        case .paid: color = .accentColor
         case .cashPickup: color = .green
         case .standby: color = .orange
         case .venmo: color = .cyan
@@ -31,7 +31,7 @@ struct StatusBadge: View {
         text = status.label
         switch status {
         case .notShipped: color = .gray
-        case .labelCreated: color = .blue
+        case .labelCreated: color = .accentColor
         case .inTransit: color = .indigo
         case .delivered: color = .green
         case .exception: color = .red
