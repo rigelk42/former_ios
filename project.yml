@@ -34,7 +34,7 @@ targets:
           NSExceptionDomains:
             localhost:
               NSExceptionAllowsInsecureHTTPLoads: true
-            192.168.0.190:
+            10.0.0.117:
               NSExceptionAllowsInsecureHTTPLoads: true
     settings:
       base:
@@ -44,7 +44,7 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
       configs:
         Debug:
-          API_BASE_URL: "http://192.168.0.190:8000/api/"
+          API_BASE_URL: "http://10.0.0.117:8000/api/"
         Release:
           API_BASE_URL: "https://formera-api-833262393415.us-west2.run.app/api/"
           # AltServer's bundled ldid (used to re-sign sideloaded builds with
