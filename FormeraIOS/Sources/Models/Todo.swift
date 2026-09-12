@@ -1,8 +1,8 @@
 import SwiftUI
 
 /// One of the 3 fixed colors a team member can be assigned -- unique per
-/// member server-side (TeamMemberProfile.color), reassignable via
-/// MemberColorsView.
+/// member server-side (TeamMemberProfile.color). Assigned via the Django
+/// admin, not from the app.
 enum MemberColor: String, Codable, CaseIterable, Identifiable {
     case blue, red, yellow
 

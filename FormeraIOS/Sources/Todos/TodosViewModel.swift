@@ -102,21 +102,4 @@ final class TodosViewModel {
         try await apiClient.delete("todos/\(todo.id)/")
         todos.removeAll { $0.id == todo.id }
     }
-
-    /// The backend swaps colors atomically when the requested color is
-    /// already held by someone else (see TeamMemberDetailView.patch), so a
-    /// single PATCH can change both this member's and another member's
-    /// color -- refetch the whole roster rather than guessing the swap.
-    func reassignColor(_ member: TeamMember, to color: MemberColor) async {
-        do {
-            _ = try await apiClient.patch(
-                "todos/members/\(member.id)/",
-                body: UpdateMemberColorInput(color: color),
-                as: TeamMember.self
-            )
-            members = try await apiClient.get("todos/members/", as: [TeamMember].self)
-        } catch {
-            errorMessage = apiErrorMessage(error)
-        }
-    }
 }

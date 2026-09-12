@@ -45,7 +45,6 @@
 		960EEB179D88F6645ED2EC01 /* Order.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654E3596012F9DD7C9F17709 /* Order.swift */; };
 		96DED6CD257CEE9C9954D279 /* CustomerFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F848F5DD430233CD51F3ED5 /* CustomerFormView.swift */; };
 		9718224A63BB529146A877B3 /* TodosViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07E85707173772D76D01FE8D /* TodosViewModel.swift */; };
-		9FD97C9F916348A4A7E8C840 /* MemberColorsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70A9177D8E29BCF5BAA9934D /* MemberColorsView.swift */; };
 		A06239F4A6343090308CEFB3 /* OrderLineItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE1014F37D2F395DB182DD81 /* OrderLineItemRow.swift */; };
 		A72D62C12CD7A2F62B974D2B /* AuthSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C487C43B68755DC46412EAA /* AuthSession.swift */; };
 		A74E8A3DDD176D0919C22A91 /* OrderItemDraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEC2900430296C8583712321 /* OrderItemDraft.swift */; };
@@ -100,7 +99,6 @@
 		641819237C5FD784961C5FF0 /* AddressEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressEditView.swift; sourceTree = "<group>"; };
 		654E3596012F9DD7C9F17709 /* Order.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Order.swift; sourceTree = "<group>"; };
 		6DD138DB61BE48C948317EE7 /* SalesSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesSummary.swift; sourceTree = "<group>"; };
-		70A9177D8E29BCF5BAA9934D /* MemberColorsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemberColorsView.swift; sourceTree = "<group>"; };
 		7D13E7945058B1045F0CF6C9 /* OrdersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdersViewModel.swift; sourceTree = "<group>"; };
 		80EA85FE78732A215B73B89F /* CustomersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomersViewModel.swift; sourceTree = "<group>"; };
 		82D7AB5BC8CAF83C70C350A7 /* TodoDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDetailView.swift; sourceTree = "<group>"; };
@@ -252,7 +250,6 @@
 		9772E3B3AEB6FD9A25EF9D8A /* Todos */ = {
 			isa = PBXGroup;
 			children = (
-				70A9177D8E29BCF5BAA9934D /* MemberColorsView.swift */,
 				82D7AB5BC8CAF83C70C350A7 /* TodoDetailView.swift */,
 				E99301A3C2743C9F654B33F3 /* TodoFormView.swift */,
 				5EBE69D2AEB00CF78E2A0CA5 /* TodosListView.swift */,
@@ -411,7 +408,6 @@
 				76495F361A3618AD013F3239 /* FormeraApp.swift in Sources */,
 				7AD5655A2B322C3B146DC896 /* Locations.swift in Sources */,
 				CC72ACA1DA149A4E0FBA591C /* LoginView.swift in Sources */,
-				9FD97C9F916348A4A7E8C840 /* MemberColorsView.swift in Sources */,
 				BCC1447BDB5C5E864CB9D337 /* Omittable.swift in Sources */,
 				960EEB179D88F6645ED2EC01 /* Order.swift in Sources */,
 				73CE1555AF6E96B232C106A0 /* OrderDetailView.swift in Sources */,

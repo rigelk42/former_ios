@@ -6,7 +6,6 @@ import SwiftUI
 struct TodosListView: View {
     @State private var viewModel = TodosViewModel()
     @State private var isCreatePresented = false
-    @State private var isMemberColorsPresented = false
 
     var body: some View {
         List {
@@ -46,13 +45,6 @@ struct TodosListView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    isMemberColorsPresented = true
-                } label: {
-                    Label("Member Colors", systemImage: "paintpalette")
-                }
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
                     isCreatePresented = true
                 } label: {
                     Label("New Todo", systemImage: "plus")
@@ -61,9 +53,6 @@ struct TodosListView: View {
         }
         .sheet(isPresented: $isCreatePresented) {
             TodoFormView(viewModel: viewModel)
-        }
-        .sheet(isPresented: $isMemberColorsPresented) {
-            MemberColorsView(viewModel: viewModel)
         }
         .task { await viewModel.loadInitial() }
     }

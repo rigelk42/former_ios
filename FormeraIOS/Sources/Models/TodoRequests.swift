@@ -40,7 +40,3 @@ struct UpdateTodoInput: Encodable {
         }
     }
 }
-
-struct UpdateMemberColorInput: Encodable {
-    var color: MemberColor
-}
