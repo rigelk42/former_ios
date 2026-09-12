@@ -57,10 +57,20 @@ struct UpdateOrderLineItemInput: Encodable {
     var unitPrice: Double?
 }
 
+/// Minimal PATCH payload for editing just the order date. Unlike the rest
+/// of UpdateOrderInput's fields, order_date stays editable even after a
+/// shipping label exists -- see OrderUpdateSerializer.validate() -- but
+/// only when it's the *only* field in the request, so this type exists to
+/// keep OrderDetailView's date-only edit from accidentally reintroducing
+/// the other (still-locked) fields into the payload.
+struct UpdateOrderDateInput: Encodable {
+    var orderDate: String
+}
+
 /// Every field is optional -- send only what's changing. Locked
 /// server-side once the order has an active shipping label (see
 /// OrderDetailView.patch/OrderUpdateSerializer) -- void the shipment first
-/// to edit again.
+/// to edit again. order_date is the exception -- see UpdateOrderDateInput.
 struct UpdateOrderInput: Encodable {
     var paymentMethod: PaymentMethod?
     /// "YYYY-MM-DD", same DRF DateField shape as Order.orderDate -- always

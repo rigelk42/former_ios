@@ -66,9 +66,37 @@ final class OrdersViewModel {
         return order
     }
 
+    /// If the edit moves the order to a different week, replace(_:) alone
+    /// would leave it sitting under its old week Section -- it only
+    /// overwrites the order in place wherever it's currently bucketed, same
+    /// "new bucket may not be loaded" problem create() has above -- so a
+    /// date change reloads from the top instead.
     func update(_ id: Int, _ input: UpdateOrderInput) async throws -> Order {
+        let previousOrderDate = orderDate(for: id)
         let updated = try await apiClient.patch("orders/\(id)/", body: input, as: Order.self)
-        replace(updated)
+        if previousOrderDate != nil, previousOrderDate != updated.orderDate {
+            await refresh()
+        } else {
+            replace(updated)
+        }
+        return updated
+    }
+
+    /// Sends only order_date (see UpdateOrderDateInput) so this still goes
+    /// through on a locked order -- the full update(_:_:) above sends every
+    /// field and would get rejected once there's an active shipping label.
+    func updateOrderDate(_ id: Int, orderDate newOrderDate: String) async throws -> Order {
+        let previousOrderDate = orderDate(for: id)
+        let updated = try await apiClient.patch(
+            "orders/\(id)/",
+            body: UpdateOrderDateInput(orderDate: newOrderDate),
+            as: Order.self
+        )
+        if previousOrderDate != nil, previousOrderDate != updated.orderDate {
+            await refresh()
+        } else {
+            replace(updated)
+        }
         return updated
     }
 
@@ -101,6 +129,15 @@ final class OrdersViewModel {
 
     func fetchInvoice(orderId: Int) async throws -> (data: Data, filename: String?) {
         try await apiClient.getBlob("orders/\(orderId)/invoice/")
+    }
+
+    private func orderDate(for id: Int) -> String? {
+        for week in weeks {
+            if let order = week.orders.first(where: { $0.id == id }) {
+                return order.orderDate
+            }
+        }
+        return nil
     }
 
     private func replace(_ updated: Order) {

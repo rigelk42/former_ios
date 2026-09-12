@@ -29,6 +29,16 @@ struct OrderDetailView: View {
 
     @State private var isFinalizing = false
 
+    // Date stays editable even once the order is otherwise locked (see
+    // isEditable below) -- OrderUpdateSerializer.validate() exempts
+    // order_date from the active-shipment lock, since it doesn't feed into
+    // the shipment ShipStation already has. Kept as its own small sheet
+    // rather than routed through OrderEditView, which always submits every
+    // field and would get rejected on a locked order.
+    @State private var isEditingDate = false
+    @State private var editingDate = Date()
+    @State private var isSavingDate = false
+
     @Environment(\.dismiss) private var dismiss
 
     init(order: Order, viewModel: OrdersViewModel) {
@@ -36,10 +46,12 @@ struct OrderDetailView: View {
         self.viewModel = viewModel
     }
 
-    // Matches the backend's _LOCKED_SHIPPING_STATUSES: editing is only
-    // allowed while there's no active shipping label, so the order record
-    // can't drift from what was actually shipped. "voided" is included
-    // since voiding clears the active label.
+    // Matches the backend's ACTIVE_SHIPMENT_STATUSES: full editing (items,
+    // address, discount, payment method) is only allowed while there's no
+    // active shipping label, so the order record can't drift from what was
+    // actually shipped. "voided" is included since voiding clears the
+    // active label. order_date is the one exception -- it's always
+    // editable via the separate date sheet below, regardless of this flag.
     private var isEditable: Bool {
         order.shippingStatus == .notShipped || order.shippingStatus == .voided
     }
@@ -86,7 +98,20 @@ struct OrderDetailView: View {
                     LabeledContent("Discount", value: discountAmount.asCurrency)
                 }
                 LabeledContent("Total", value: order.totalAmount.asCurrency)
-                LabeledContent("Date", value: order.orderDate.formattedAsPlainDate())
+                LabeledContent("Date") {
+                    Button {
+                        editingDate = DRFPlainDate.parse(order.orderDate) ?? Date()
+                        isEditingDate = true
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(order.orderDate.formattedAsPlainDate())
+                            Image(systemName: "pencil")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
             }
 
             Section("Notes") {
@@ -192,6 +217,26 @@ struct OrderDetailView: View {
             Button("Save") { Task { await saveEditingPrice() } }
             Button("Cancel", role: .cancel) {}
         }
+        .sheet(isPresented: $isEditingDate) {
+            NavigationStack {
+                Form {
+                    DatePicker("Order date", selection: $editingDate, displayedComponents: .date)
+                }
+                .navigationTitle("Edit Date")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { isEditingDate = false }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Save") { Task { await saveOrderDate() } }
+                            .disabled(isSavingDate)
+                    }
+                }
+                .disabled(isSavingDate)
+            }
+            .presentationDetents([.medium])
+        }
         .toast($errorMessage)
     }
 
@@ -245,6 +290,17 @@ struct OrderDetailView: View {
         guard let editingItem, let price = Double(editingPriceText) else { return }
         do {
             order = try await viewModel.updateLineItemPrice(orderId: order.id, itemId: editingItem.id, unitPrice: price)
+        } catch {
+            errorMessage = apiErrorMessage(error)
+        }
+    }
+
+    private func saveOrderDate() async {
+        isSavingDate = true
+        defer { isSavingDate = false }
+        do {
+            order = try await viewModel.updateOrderDate(order.id, orderDate: DRFPlainDate.format(editingDate))
+            isEditingDate = false
         } catch {
             errorMessage = apiErrorMessage(error)
         }
