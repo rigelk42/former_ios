@@ -39,40 +39,61 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
 /// than two separate layout codepaths.
 struct AppShellView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(AuthService.self) private var auth
     @State private var selection: AppSection? = .dashboard
+    // Hidden by default and only revealed once confirmed -- there's no
+    // client-side notion of "does the current user have a
+    // TeamMemberProfile" otherwise, so this checks the same roster
+    // TodoFiltersBar's member chips come from (GET /api/todos/members/)
+    // for the signed-in user's id.
+    @State private var hasTodosProfile = false
+    private let apiClient = APIClient()
+
+    private var visibleSections: [AppSection] {
+        AppSection.allCases.filter { $0 != .todos || hasTodosProfile }
+    }
 
     var body: some View {
-        if horizontalSizeClass == .compact {
-            TabView(selection: Binding(get: { selection ?? .dashboard }, set: { selection = $0 })) {
-                ForEach(AppSection.allCases) { section in
-                    NavigationStack {
-                        destination(for: section)
-                            .toolbar {
-                                ToolbarItem(placement: .principal) { LogoTitleView() }
-                                ToolbarItem(placement: .topBarTrailing) { AccountMenu() }
-                            }
+        Group {
+            if horizontalSizeClass == .compact {
+                TabView(selection: Binding(get: { selection ?? .dashboard }, set: { selection = $0 })) {
+                    ForEach(visibleSections) { section in
+                        NavigationStack {
+                            destination(for: section)
+                                .toolbar {
+                                    ToolbarItem(placement: .principal) { LogoTitleView() }
+                                    ToolbarItem(placement: .topBarTrailing) { AccountMenu() }
+                                }
+                        }
+                        .tabItem { Label(section.title, systemImage: section.systemImage) }
+                        .tag(section)
                     }
-                    .tabItem { Label(section.title, systemImage: section.systemImage) }
-                    .tag(section)
                 }
-            }
-        } else {
-            NavigationSplitView {
-                List(AppSection.allCases, selection: $selection) { section in
-                    Label(section.title, systemImage: section.systemImage).tag(section)
-                }
-                .safeAreaInset(edge: .top) {
-                    LogoTitleView()
-                        .padding(.vertical, 12)
-                        .frame(maxWidth: .infinity)
-                }
-            } detail: {
-                NavigationStack {
-                    destination(for: selection ?? .dashboard)
-                        .toolbar { ToolbarItem(placement: .topBarTrailing) { AccountMenu() } }
+            } else {
+                NavigationSplitView {
+                    List(visibleSections, selection: $selection) { section in
+                        Label(section.title, systemImage: section.systemImage).tag(section)
+                    }
+                    .safeAreaInset(edge: .top) {
+                        LogoTitleView()
+                            .padding(.vertical, 12)
+                            .frame(maxWidth: .infinity)
+                    }
+                } detail: {
+                    NavigationStack {
+                        destination(for: selection ?? .dashboard)
+                            .toolbar { ToolbarItem(placement: .topBarTrailing) { AccountMenu() } }
+                    }
                 }
             }
         }
+        .task { await checkTodosAccess() }
+    }
+
+    private func checkTodosAccess() async {
+        guard case let .authenticated(user) = auth.status else { return }
+        let members = try? await apiClient.get("todos/members/", as: [TeamMember].self)
+        hasTodosProfile = members?.contains { $0.id == user.id } ?? false
     }
 
     @ViewBuilder
