@@ -6,6 +6,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
     case customers
     case orders
     case products
+    case todos
 
     var id: String { rawValue }
 
@@ -15,6 +16,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
         case .customers: "Customers"
         case .orders: "Orders"
         case .products: "Products"
+        case .todos: "Todos"
         }
     }
 
@@ -24,6 +26,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
         case .customers: "person.2"
         case .orders: "list.clipboard"
         case .products: "shippingbox.fill"
+        case .todos: "checklist"
         }
     }
 }
@@ -79,6 +82,7 @@ struct AppShellView: View {
         case .customers: CustomersListView()
         case .orders: OrdersListView()
         case .products: ProductsListView()
+        case .todos: TodosListView()
         }
     }
 }
