@@ -53,7 +53,9 @@ private struct SalesPieChart: View {
     // colors via foregroundStyle(by:)) so each product's pie slice and its
     // legend-row dot are guaranteed to match -- cycles if there are more
     // products than colors.
-    private static let palette: [Color] = [.blue, .green, .orange, .purple, .red, .cyan, .yellow, .indigo, .mint, .brown]
+    private static let palette: [Color] = [
+        .blue, .green, .orange, .purple, .red, .cyan, .yellow, .indigo, .mint, .brown
+    ]
 
     private var total: Decimal { items.reduce(Decimal(0)) { $0 + $1.revenueValue } }
 

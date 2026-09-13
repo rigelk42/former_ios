@@ -46,7 +46,9 @@ struct CustomersListView: View {
                 ProgressView()
             } else if viewModel.filteredCustomers.isEmpty {
                 ContentUnavailableView(
-                    viewModel.errorMessage ?? (viewModel.searchText.isEmpty ? "No customers yet" : "No matching customers"),
+                    viewModel.errorMessage ?? (
+                        viewModel.searchText.isEmpty ? "No customers yet" : "No matching customers"
+                    ),
                     systemImage: viewModel.errorMessage == nil ? "person.2" : "exclamationmark.triangle"
                 )
             }

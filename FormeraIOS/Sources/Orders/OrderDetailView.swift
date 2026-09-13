@@ -124,7 +124,11 @@ struct OrderDetailView: View {
 
             Section("Shipping address") {
                 if let shippingAddress = order.shippingAddress {
-                    Text(shippingAddress.line2.isEmpty ? shippingAddress.line1 : "\(shippingAddress.line1), \(shippingAddress.line2)")
+                    Text(
+                        shippingAddress.line2.isEmpty
+                            ? shippingAddress.line1
+                            : "\(shippingAddress.line1), \(shippingAddress.line2)"
+                    )
                     LabeledContent("City", value: shippingAddress.city)
                     LabeledContent("State", value: shippingAddress.state)
                     LabeledContent("Postal code", value: shippingAddress.postalCode)

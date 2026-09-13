@@ -49,7 +49,7 @@ struct ProductFormView: View {
                     .onDelete { dosages.remove(atOffsets: $0) }
 
                     Button {
-                        dosages.append(DosageInput(ingredientName: "", amount: "", unit: .mg))
+                        dosages.append(DosageInput(ingredientName: "", amount: "", unit: .milligrams))
                     } label: {
                         Label("Add ingredient", systemImage: "plus")
                     }
@@ -84,7 +84,7 @@ struct ProductFormView: View {
             DosageInput(
                 ingredientName: dosage.ingredientName,
                 amount: String(format: "%.3f", Double(dosage.amount) ?? 0),
-                unit: .mg
+                unit: .milligrams
             )
         }
 

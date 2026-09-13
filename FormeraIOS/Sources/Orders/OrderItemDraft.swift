@@ -66,7 +66,9 @@ struct OrderItemDraft: Identifiable {
     func toUpdateInput() -> UpdateOrderLineItemInput {
         let price = Double(unitPriceText)
         if let existingId {
-            return UpdateOrderLineItemInput(id: existingId, product: nil, newProduct: nil, quantity: quantity, unitPrice: price)
+            return UpdateOrderLineItemInput(
+                id: existingId, product: nil, newProduct: nil, quantity: quantity, unitPrice: price
+            )
         }
         if mode == .newProduct {
             return UpdateOrderLineItemInput(
@@ -77,6 +79,8 @@ struct OrderItemDraft: Identifiable {
                 unitPrice: price
             )
         }
-        return UpdateOrderLineItemInput(id: nil, product: selectedProductId, newProduct: nil, quantity: quantity, unitPrice: price)
+        return UpdateOrderLineItemInput(
+            id: nil, product: selectedProductId, newProduct: nil, quantity: quantity, unitPrice: price
+        )
     }
 }

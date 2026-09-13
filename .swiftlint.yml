@@ -1,0 +1,12 @@
+included:
+  - FormeraIOS/Sources
+
+line_length:
+  warning: 120
+
+# Full-screen SwiftUI form/detail views (e.g. OrderFormView, OrderDetailView)
+# legitimately run long due to declarative body composition; 250 is too
+# tight for this codebase's screen-sized views.
+type_body_length:
+  warning: 320
+  error: 400

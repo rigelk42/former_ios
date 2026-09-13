@@ -50,7 +50,9 @@ struct APIClient {
         as type: Response.Type
     ) async throws -> Response {
         let bodyData = try encode(body)
-        let data = try await sendRaw(path, method: .post, bodyData: bodyData, contentType: "application/json", authenticated: authenticated)
+        let data = try await sendRaw(
+            path, method: .post, bodyData: bodyData, contentType: "application/json", authenticated: authenticated
+        )
         return try decode(data)
     }
 
@@ -58,7 +60,9 @@ struct APIClient {
     @discardableResult
     func post<Body: Encodable>(_ path: String, body: Body, authenticated: Bool = true) async throws -> Data {
         let bodyData = try encode(body)
-        return try await sendRaw(path, method: .post, bodyData: bodyData, contentType: "application/json", authenticated: authenticated)
+        return try await sendRaw(
+            path, method: .post, bodyData: bodyData, contentType: "application/json", authenticated: authenticated
+        )
     }
 
     func patch<Body: Encodable, Response: Decodable>(
@@ -67,7 +71,9 @@ struct APIClient {
         as type: Response.Type
     ) async throws -> Response {
         let bodyData = try encode(body)
-        let data = try await sendRaw(path, method: .patch, bodyData: bodyData, contentType: "application/json", authenticated: true)
+        let data = try await sendRaw(
+            path, method: .patch, bodyData: bodyData, contentType: "application/json", authenticated: true
+        )
         return try decode(data)
     }
 
@@ -83,8 +89,11 @@ struct APIClient {
     /// JSON methods, just skips decoding and surfaces the server-suggested
     /// filename instead. Mirrors lib/api.ts's apiFetchBlob.
     func getBlob(_ path: String) async throws -> (data: Data, filename: String?) {
-        let (data, response) = try await sendRawFull(path, method: .get, bodyData: nil, contentType: nil, authenticated: true)
-        let filename = response.value(forHTTPHeaderField: "Content-Disposition").flatMap(Self.filename(fromContentDisposition:))
+        let (data, response) = try await sendRawFull(
+            path, method: .get, bodyData: nil, contentType: nil, authenticated: true
+        )
+        let filename = response.value(forHTTPHeaderField: "Content-Disposition")
+            .flatMap(Self.filename(fromContentDisposition:))
         return (data, filename)
     }
 
@@ -104,7 +113,9 @@ struct APIClient {
         contentType: String?,
         authenticated: Bool
     ) async throws -> Data {
-        try await sendRawFull(path, method: method, bodyData: bodyData, contentType: contentType, authenticated: authenticated).data
+        try await sendRawFull(
+            path, method: method, bodyData: bodyData, contentType: contentType, authenticated: authenticated
+        ).data
     }
 
     private func sendRawFull(
@@ -139,7 +150,14 @@ struct APIClient {
         // than surfacing a spurious failure to the caller.
         if httpResponse.statusCode == 401, authenticated, !isRetry,
            await AuthSession.shared.refreshAccessToken() {
-            return try await sendRawFull(path, method: method, bodyData: bodyData, contentType: contentType, authenticated: authenticated, isRetry: true)
+            return try await sendRawFull(
+                path,
+                method: method,
+                bodyData: bodyData,
+                contentType: contentType,
+                authenticated: authenticated,
+                isRetry: true
+            )
         }
 
         guard (200..<300).contains(httpResponse.statusCode) else {

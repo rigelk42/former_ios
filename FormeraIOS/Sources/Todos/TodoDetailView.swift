@@ -109,7 +109,9 @@ struct TodoDetailView: View {
 
     private func updateDueDate(_ date: Date?) async {
         do {
-            todo = try await viewModel.update(todo, input: UpdateTodoInput(dueDate: .value(date.map(DRFPlainDate.format))))
+            todo = try await viewModel.update(
+                todo, input: UpdateTodoInput(dueDate: .value(date.map(DRFPlainDate.format)))
+            )
         } catch {
             errorMessage = apiErrorMessage(error)
         }
@@ -144,7 +146,17 @@ struct TodoDetailView: View {
 #Preview {
     NavigationStack {
         TodoDetailView(
-            todo: Todo(id: 1, title: "Call Riverside Farms", isDone: false, dueDate: nil, remindAt: nil, mentions: [], createdBy: nil, createdAt: "", updatedAt: ""),
+            todo: Todo(
+                id: 1,
+                title: "Call Riverside Farms",
+                isDone: false,
+                dueDate: nil,
+                remindAt: nil,
+                mentions: [],
+                createdBy: nil,
+                createdAt: "",
+                updatedAt: ""
+            ),
             viewModel: TodosViewModel()
         )
     }

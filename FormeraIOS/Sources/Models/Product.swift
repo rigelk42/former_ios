@@ -25,7 +25,7 @@ struct Product: Decodable, Identifiable, Hashable {
 
 /// Only milligrams are supported by the backend today.
 enum DosageUnit: String, Codable, CaseIterable, Identifiable {
-    case mg
+    case milligrams = "mg"
 
     var id: String { rawValue }
 }
@@ -56,7 +56,7 @@ struct DosageInput: Codable, Hashable, Identifiable {
 /// the catalog. Matched case-insensitively since product names aren't
 /// consistently cased in the catalog (e.g. "MOTS-c").
 private let pinnedOrderProductNames = [
-    "Retatrutide", "NAD+", "Bacteriostatic Water", "BPC-157", "TB-500", "MOTS-C",
+    "Retatrutide", "NAD+", "Bacteriostatic Water", "BPC-157", "TB-500", "MOTS-C"
 ]
 
 extension [Product] {

@@ -25,5 +25,5 @@ let usStates: [LocationOption] = [
     ("VT", "Vermont"), ("VA", "Virginia"), ("WA", "Washington"), ("WV", "West Virginia"),
     ("WI", "Wisconsin"), ("WY", "Wyoming"), ("DC", "District of Columbia"),
     ("AS", "American Samoa"), ("GU", "Guam"), ("MP", "Northern Mariana Islands"),
-    ("PR", "Puerto Rico"), ("VI", "U.S. Virgin Islands"),
+    ("PR", "Puerto Rico"), ("VI", "U.S. Virgin Islands")
 ].map { LocationOption(value: $0.0, label: $0.1) }

@@ -26,7 +26,10 @@ enum DRFDate {
 extension String {
     /// Formats a DRF timestamp string for display, falling back to the raw
     /// string if it can't be parsed.
-    func formattedAsDate(date dateStyle: Date.FormatStyle.DateStyle = .abbreviated, time timeStyle: Date.FormatStyle.TimeStyle = .omitted) -> String {
+    func formattedAsDate(
+        date dateStyle: Date.FormatStyle.DateStyle = .abbreviated,
+        time timeStyle: Date.FormatStyle.TimeStyle = .omitted
+    ) -> String {
         guard let parsed = DRFDate.parse(self) else { return self }
         return parsed.formatted(date: dateStyle, time: timeStyle)
     }

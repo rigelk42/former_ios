@@ -178,7 +178,8 @@ struct OrderEditView: View {
 
     private func loadProductOptions() async {
         productsLoading = true
-        productOptions = ((try? await apiClient.get("products/?page_size=100", as: CursorPage<Product>.self))?.results ?? []).sortedForOrderPicker()
+        let page = try? await apiClient.get("products/?page_size=100", as: CursorPage<Product>.self)
+        productOptions = (page?.results ?? []).sortedForOrderPicker()
         productsLoading = false
     }
 
@@ -195,7 +196,8 @@ struct OrderEditView: View {
             paymentMethod: paymentMethod,
             orderDate: DRFPlainDate.format(orderDate),
             discountPercent: includeDiscount && discountType == .percent ? .value(discountPercent) : .value(nil),
-            discountAmount: includeDiscount && discountType == .amount ? .value(Double(discountAmountText)) : .value(nil),
+            discountAmount: includeDiscount && discountType == .amount
+                ? .value(Double(discountAmountText)) : .value(nil),
             notes: notes,
             shippingAddress: (hasExistingAddress || includeAddress) ? address : nil,
             items: items.map { $0.toUpdateInput() }

@@ -58,7 +58,11 @@ struct AddressEditView: View {
         do {
             let saved: Address
             if let existingAddress {
-                saved = try await viewModel.updateAddress(customerId: customerId, addressId: existingAddress.id, address)
+                saved = try await viewModel.updateAddress(
+                    customerId: customerId,
+                    addressId: existingAddress.id,
+                    address
+                )
             } else {
                 saved = try await viewModel.createAddress(customerId: customerId, address)
             }
