@@ -34,7 +34,7 @@ struct TodoFormView: View {
                         } label: {
                             HStack {
                                 Circle().fill(member.color.color).frame(width: 10, height: 10)
-                                Text(member.username).foregroundStyle(.primary)
+                                Text(member.displayName).foregroundStyle(.primary)
                                 Spacer()
                                 if mentionedIds.contains(member.id) {
                                     Image(systemName: "checkmark").foregroundStyle(member.color.color)

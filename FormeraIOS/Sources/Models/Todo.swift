@@ -30,6 +30,11 @@ struct TeamMember: Decodable, Identifiable, Hashable {
     let id: Int
     let username: String
     let email: String
+    /// The friendly name to show anywhere a member appears -- e.g. "Derek"
+    /// rather than the Django admin login "dbrainard". Set via the Django
+    /// admin, not from the app. `username` is kept for reference but
+    /// shouldn't be shown in the UI.
+    let displayName: String
     let color: MemberColor
 }
 

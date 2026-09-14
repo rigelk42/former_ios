@@ -65,7 +65,7 @@ struct TodoDetailView: View {
                     } label: {
                         HStack {
                             Circle().fill(member.color.color).frame(width: 10, height: 10)
-                            Text(member.username).foregroundStyle(.primary)
+                            Text(member.displayName).foregroundStyle(.primary)
                             Spacer()
                             if todo.mentions.contains(where: { $0.id == member.id }) {
                                 Image(systemName: "checkmark")

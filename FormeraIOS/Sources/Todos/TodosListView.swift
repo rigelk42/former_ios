@@ -67,7 +67,7 @@ private struct TodoRow: View {
     let onToggle: () -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(alignment: .top, spacing: 12) {
             Button(action: onToggle) {
                 ZStack {
                     Circle()
@@ -82,12 +82,12 @@ private struct TodoRow: View {
                 }
             }
             .buttonStyle(.borderless)
+            .padding(.top, 1)
 
             VStack(alignment: .leading, spacing: 5) {
                 Text(todo.title)
                     .strikethrough(todo.isDone)
                     .foregroundStyle(todo.isDone ? .secondary : .primary)
-                    .lineLimit(1)
                 if !todo.mentions.isEmpty {
                     HStack(spacing: 4) {
                         ForEach(todo.mentions) { member in
@@ -98,10 +98,12 @@ private struct TodoRow: View {
             }
 
             if let dueDate = todo.dueDate {
-                Spacer()
+                Spacer(minLength: 8)
                 Text(dueDate.formattedAsPlainDate())
                     .font(.caption)
                     .foregroundStyle(todo.isOverdue ? .red : .secondary)
+                    .fixedSize()
+                    .layoutPriority(1)
             }
         }
         .padding(.vertical, 2)
@@ -131,7 +133,7 @@ private struct TodoFiltersBar: View {
                     }
                     ForEach(members) { member in
                         MemberFilterChip(
-                            label: member.username,
+                            label: member.displayName,
                             color: member.color.color,
                             isSelected: memberFilter == member.color
                         ) {
