@@ -8,7 +8,7 @@ options:
 settings:
   base:
     SWIFT_VERSION: "5.0"
-    DEVELOPMENT_TEAM: "TT4TYJV7FD"
+    DEVELOPMENT_TEAM: "T99GXSTAKM"
     CODE_SIGN_STYLE: Automatic
     MARKETING_VERSION: "1.1.0"
     CURRENT_PROJECT_VERSION: "14"
@@ -42,6 +42,7 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        DEVELOPMENT_TEAM: "TT4TYJV7FD"
       configs:
         Debug:
           API_BASE_URL: "http://10.0.0.117:8000/api/"
