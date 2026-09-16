@@ -2,6 +2,7 @@ import Foundation
 
 struct CreateTodoInput: Encodable {
     var title: String
+    var notes: String = ""
     /// "YYYY-MM-DD" (see DRFPlainDate), or nil for no due date.
     var dueDate: String?
     var mentions: [Int]
@@ -15,17 +16,19 @@ struct CreateTodoInput: Encodable {
 /// JSON null -- omitting the key would leave the old date in place.
 struct UpdateTodoInput: Encodable {
     var title: String?
+    var notes: String?
     var isDone: Bool?
     var dueDate: Omittable<String> = .omit
     var mentions: [Int]?
 
     private enum CodingKeys: String, CodingKey {
-        case title, isDone, dueDate, mentions
+        case title, notes, isDone, dueDate, mentions
     }
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(title, forKey: .title)
+        try container.encodeIfPresent(notes, forKey: .notes)
         try container.encodeIfPresent(isDone, forKey: .isDone)
         try container.encodeIfPresent(mentions, forKey: .mentions)
         switch dueDate {

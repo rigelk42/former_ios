@@ -2,8 +2,8 @@ import SwiftUI
 
 /// Pushed from TodosListView. Matches the mockup's TodoDetail artboard:
 /// a done toggle and a non-exclusive multi-select "Mentioned" section.
-/// No stage picker (there's no stage concept) and no notes thread (see
-/// [[team_todos_design]] memory -- notes were dropped from the feature).
+/// No stage picker (there's no stage concept). Notes is a plain free-text
+/// field (not a comment thread), edited in place and saved on blur.
 struct TodoDetailView: View {
     @State private var todo: Todo
     var viewModel: TodosViewModel
@@ -13,6 +13,8 @@ struct TodoDetailView: View {
     @State private var errorMessage: String?
     @State private var hasDueDate: Bool
     @State private var dueDate: Date
+    @State private var notes: String
+    @FocusState private var isNotesFocused: Bool
     @Environment(\.dismiss) private var dismiss
 
     init(todo: Todo, viewModel: TodosViewModel) {
@@ -21,6 +23,7 @@ struct TodoDetailView: View {
         let parsedDueDate = todo.dueDate.flatMap(DRFPlainDate.parse)
         _hasDueDate = State(initialValue: parsedDueDate != nil)
         _dueDate = State(initialValue: parsedDueDate ?? Date())
+        _notes = State(initialValue: todo.notes)
     }
 
     var body: some View {
@@ -39,6 +42,15 @@ struct TodoDetailView: View {
                     }
                 }
                 .buttonStyle(.plain)
+            }
+
+            Section("Notes") {
+                TextField("Notes", text: $notes, axis: .vertical)
+                    .lineLimit(3...10)
+                    .focused($isNotesFocused)
+                    .onChange(of: isNotesFocused) { _, isFocused in
+                        if !isFocused { Task { await updateNotes() } }
+                    }
             }
 
             Section {
@@ -107,6 +119,15 @@ struct TodoDetailView: View {
         }
     }
 
+    private func updateNotes() async {
+        guard notes != todo.notes else { return }
+        do {
+            todo = try await viewModel.update(todo, input: UpdateTodoInput(notes: notes))
+        } catch {
+            errorMessage = apiErrorMessage(error)
+        }
+    }
+
     private func updateDueDate(_ date: Date?) async {
         do {
             todo = try await viewModel.update(
@@ -149,6 +170,7 @@ struct TodoDetailView: View {
             todo: Todo(
                 id: 1,
                 title: "Call Riverside Farms",
+                notes: "",
                 isDone: false,
                 dueDate: nil,
                 remindAt: nil,

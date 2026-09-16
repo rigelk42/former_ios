@@ -7,6 +7,7 @@ struct TodoFormView: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var title = ""
+    @State private var notes = ""
     @State private var hasDueDate = false
     @State private var dueDate = Date()
     @State private var mentionedIds: Set<Int> = []
@@ -18,6 +19,11 @@ struct TodoFormView: View {
             Form {
                 Section {
                     TextField("What needs doing?", text: $title)
+                }
+
+                Section("Notes") {
+                    TextField("Notes", text: $notes, axis: .vertical)
+                        .lineLimit(3...10)
                 }
 
                 Section {
@@ -75,6 +81,7 @@ struct TodoFormView: View {
         defer { isSubmitting = false }
         let input = CreateTodoInput(
             title: title.trimmingCharacters(in: .whitespacesAndNewlines),
+            notes: notes.trimmingCharacters(in: .whitespacesAndNewlines),
             dueDate: hasDueDate ? DRFPlainDate.format(dueDate) : nil,
             mentions: Array(mentionedIds)
         )

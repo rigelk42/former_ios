@@ -44,6 +44,7 @@ struct TeamMember: Decodable, Identifiable, Hashable {
 struct Todo: Decodable, Identifiable, Hashable {
     let id: Int
     let title: String
+    let notes: String
     let isDone: Bool
     /// A user-facing target completion date -- "YYYY-MM-DD", same DRF
     /// DateField shape as Order.orderDate (see DRFPlainDate), not a

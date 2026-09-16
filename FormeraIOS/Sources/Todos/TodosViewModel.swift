@@ -49,6 +49,21 @@ final class TodosViewModel {
             } ?? true
             return matchesDone && matchesMember
         }
+        // Soonest due date first; a todo with no due date sorts last --
+        // dueDate is "YYYY-MM-DD" (see DRFPlainDate), which orders
+        // correctly as a plain string comparison. Ties (including
+        // nil == nil, e.g. two undated todos) break by newest-created
+        // first, so a freshly-created todo lands at the top of its group
+        // -- e.g. above other undated todos -- rather than in an
+        // arbitrary spot.
+        .sorted { lhs, rhs in
+            switch (lhs.dueDate, rhs.dueDate) {
+            case let (lhsDate?, rhsDate?) where lhsDate != rhsDate: lhsDate < rhsDate
+            case (nil, _?): false
+            case (_?, nil): true
+            default: lhs.createdAt > rhs.createdAt
+            }
+        }
     }
 
     func loadInitial() async {
@@ -62,7 +77,11 @@ final class TodosViewModel {
         defer { isLoading = false }
         do {
             async let membersRequest = apiClient.get("todos/members/", as: [TeamMember].self)
-            async let todosRequest = apiClient.get("todos/", as: [Todo].self)
+            // ?due=true -- hides a todo whose remind_at hasn't passed yet
+            // (see TodoListCreateView.get_queryset), so e.g. the
+            // automatic order follow-up/reorder-check todos stay out of
+            // the list until the day before they're due.
+            async let todosRequest = apiClient.get("todos/?due=true", as: [Todo].self)
             let (loadedMembers, loadedTodos) = try await (membersRequest, todosRequest)
             members = loadedMembers
             todos = loadedTodos

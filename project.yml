@@ -10,8 +10,8 @@ settings:
     SWIFT_VERSION: "5.0"
     DEVELOPMENT_TEAM: "T99GXSTAKM"
     CODE_SIGN_STYLE: Automatic
-    MARKETING_VERSION: "1.1.0"
-    CURRENT_PROJECT_VERSION: "14"
+    MARKETING_VERSION: "1.2.0"
+    CURRENT_PROJECT_VERSION: "15"
 
 targets:
   FormeraIOS:
@@ -34,7 +34,7 @@ targets:
           NSExceptionDomains:
             localhost:
               NSExceptionAllowsInsecureHTTPLoads: true
-            10.0.0.117:
+            10.0.31.124:
               NSExceptionAllowsInsecureHTTPLoads: true
     settings:
       base:
@@ -45,7 +45,7 @@ targets:
         DEVELOPMENT_TEAM: "TT4TYJV7FD"
       configs:
         Debug:
-          API_BASE_URL: "http://10.0.0.117:8000/api/"
+          API_BASE_URL: "http://10.0.31.124:8000/api/"
         Release:
           API_BASE_URL: "https://formera-api-833262393415.us-west2.run.app/api/"
           # AltServer's bundled ldid (used to re-sign sideloaded builds with
