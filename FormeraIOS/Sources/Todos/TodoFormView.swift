@@ -46,6 +46,7 @@ struct TodoFormView: View {
                                     Image(systemName: "checkmark").foregroundStyle(member.color.color)
                                 }
                             }
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }

@@ -3,7 +3,9 @@ import SwiftUI
 /// Pushed from TodosListView. Matches the mockup's TodoDetail artboard:
 /// a done toggle and a non-exclusive multi-select "Mentioned" section.
 /// No stage picker (there's no stage concept). Notes is a plain free-text
-/// field (not a comment thread), edited in place and saved on blur.
+/// field (not a comment thread), edited in place; a toolbar Save button
+/// appears while the text differs from what's persisted (blur also saves,
+/// as a fallback for tapping away without using the button).
 struct TodoDetailView: View {
     @State private var todo: Todo
     var viewModel: TodosViewModel
@@ -39,7 +41,9 @@ struct TodoDetailView: View {
                         Text(todo.title)
                             .strikethrough(todo.isDone)
                             .foregroundStyle(todo.isDone ? .secondary : .primary)
+                        Spacer()
                     }
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }
@@ -84,6 +88,7 @@ struct TodoDetailView: View {
                                     .foregroundStyle(member.color.color)
                             }
                         }
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -99,6 +104,18 @@ struct TodoDetailView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(todo.title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if notes != todo.notes {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        isNotesFocused = false
+                        Task { await updateNotes() }
+                    } label: {
+                        Label("Save", systemImage: "checkmark")
+                    }
+                }
+            }
+        }
         .confirmationDialog(
             "Delete this todo?",
             isPresented: $isDeleteConfirming,
