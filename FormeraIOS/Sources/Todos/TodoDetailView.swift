@@ -2,10 +2,12 @@ import SwiftUI
 
 /// Pushed from TodosListView. Matches the mockup's TodoDetail artboard:
 /// a done toggle and a non-exclusive multi-select "Mentioned" section.
-/// No stage picker (there's no stage concept). Notes is a plain free-text
-/// field (not a comment thread), edited in place; a toolbar Save button
-/// appears while the text differs from what's persisted (blur also saves,
-/// as a fallback for tapping away without using the button).
+/// No stage picker (there's no stage concept). Title and Notes are both
+/// plain free-text fields (Notes isn't a comment thread), edited in place;
+/// a toolbar Save button appears while either differs from what's
+/// persisted (blur also saves, as a fallback for tapping away without
+/// using the button). An empty title reverts to the last saved value
+/// instead of being submitted.
 struct TodoDetailView: View {
     @State private var todo: Todo
     var viewModel: TodosViewModel
@@ -15,7 +17,9 @@ struct TodoDetailView: View {
     @State private var errorMessage: String?
     @State private var hasDueDate: Bool
     @State private var dueDate: Date
+    @State private var title: String
     @State private var notes: String
+    @FocusState private var isTitleFocused: Bool
     @FocusState private var isNotesFocused: Bool
     @Environment(\.dismiss) private var dismiss
 
@@ -25,27 +29,33 @@ struct TodoDetailView: View {
         let parsedDueDate = todo.dueDate.flatMap(DRFPlainDate.parse)
         _hasDueDate = State(initialValue: parsedDueDate != nil)
         _dueDate = State(initialValue: parsedDueDate ?? Date())
+        _title = State(initialValue: todo.title)
         _notes = State(initialValue: todo.notes)
     }
 
     var body: some View {
         List {
             Section {
-                Button {
-                    Task { await toggleDone() }
-                } label: {
-                    HStack(spacing: 12) {
+                HStack(spacing: 12) {
+                    Button {
+                        Task { await toggleDone() }
+                    } label: {
                         Image(systemName: todo.isDone ? "checkmark.circle.fill" : "circle")
                             .font(.title2)
                             .foregroundStyle(todo.isDone ? .green : .secondary)
-                        Text(todo.title)
-                            .strikethrough(todo.isDone)
-                            .foregroundStyle(todo.isDone ? .secondary : .primary)
-                        Spacer()
                     }
-                    .contentShape(Rectangle())
+                    .buttonStyle(.plain)
+
+                    TextField("Title", text: $title)
+                        .strikethrough(todo.isDone)
+                        .foregroundStyle(todo.isDone ? .secondary : .primary)
+                        .focused($isTitleFocused)
+                        .submitLabel(.done)
+                        .onSubmit { Task { await updateTitle() } }
+                        .onChange(of: isTitleFocused) { _, isFocused in
+                            if !isFocused { Task { await updateTitle() } }
+                        }
                 }
-                .buttonStyle(.plain)
             }
 
             Section("Notes") {
@@ -105,11 +115,15 @@ struct TodoDetailView: View {
         .navigationTitle(todo.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if notes != todo.notes {
+            if notes != todo.notes || title.trimmingCharacters(in: .whitespacesAndNewlines) != todo.title {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
+                        isTitleFocused = false
                         isNotesFocused = false
-                        Task { await updateNotes() }
+                        Task {
+                            await updateTitle()
+                            await updateNotes()
+                        }
                     } label: {
                         Label("Save", systemImage: "checkmark")
                     }
@@ -131,6 +145,21 @@ struct TodoDetailView: View {
     private func toggleDone() async {
         do {
             todo = try await viewModel.update(todo, input: UpdateTodoInput(isDone: !todo.isDone))
+        } catch {
+            errorMessage = apiErrorMessage(error)
+        }
+    }
+
+    private func updateTitle() async {
+        let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            title = todo.title
+            return
+        }
+        guard trimmed != todo.title else { return }
+        do {
+            todo = try await viewModel.update(todo, input: UpdateTodoInput(title: trimmed))
+            title = todo.title
         } catch {
             errorMessage = apiErrorMessage(error)
         }
