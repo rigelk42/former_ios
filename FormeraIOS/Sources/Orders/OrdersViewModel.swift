@@ -143,6 +143,11 @@ final class OrdersViewModel {
         try await apiClient.getBlob("orders/\(orderId)/invoice/")
     }
 
+    /// `weekStart` is "YYYY-MM-DD" -- any day in the wanted week.
+    func fetchCashPickupReport(weekStart: String) async throws -> (data: Data, filename: String?) {
+        try await apiClient.getBlob("orders/cash-pickup-report/?week_start=\(weekStart)")
+    }
+
     private func orderDate(for id: Int) -> String? {
         for week in weeks {
             if let order = week.orders.first(where: { $0.id == id }) {

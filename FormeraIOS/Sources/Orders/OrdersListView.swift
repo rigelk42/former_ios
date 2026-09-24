@@ -5,6 +5,7 @@ import SwiftUI
 struct OrdersListView: View {
     @State private var viewModel = OrdersViewModel()
     @State private var isCreatePresented = false
+    @State private var isCashReportPresented = false
 
     var body: some View {
         List {
@@ -53,6 +54,13 @@ struct OrdersListView: View {
         }
         .refreshable { await viewModel.refresh() }
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    isCashReportPresented = true
+                } label: {
+                    Label("Cash Pickups", systemImage: "banknote")
+                }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     isCreatePresented = true
@@ -63,6 +71,9 @@ struct OrdersListView: View {
         }
         .sheet(isPresented: $isCreatePresented) {
             OrderFormView(viewModel: viewModel)
+        }
+        .sheet(isPresented: $isCashReportPresented) {
+            CashPickupReportView(viewModel: viewModel)
         }
         .task { await viewModel.loadInitial() }
     }
