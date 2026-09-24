@@ -72,8 +72,13 @@ struct OrdersListView: View {
         return formatWeekRange(weekStart: date)
     }
 
+    /// Finalized orders only -- a pending order doesn't count toward the
+    /// week's total until it's finalized (same rule as the dashboard's
+    /// sales-summary endpoint).
     private func weekTotal(_ week: OrderWeekGroup) -> String {
-        let total = week.orders.reduce(Decimal(0)) { $0 + (Decimal(string: $1.totalAmount) ?? 0) }
+        let total = week.orders
+            .filter { $0.finalizedAt != nil }
+            .reduce(Decimal(0)) { $0 + (Decimal(string: $1.totalAmount) ?? 0) }
         return total.formatted(.currency(code: "USD"))
     }
 }
