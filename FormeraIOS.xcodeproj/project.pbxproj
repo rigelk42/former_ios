@@ -21,6 +21,7 @@
 		3632C91841AAABEA71DE35CF /* CustomersListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 530F22B6CC3749FA04972E8E /* CustomersListView.swift */; };
 		368DEC50EDDF801C4F3162DE /* Todo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D44A96AAEBE3B0312439A772 /* Todo.swift */; };
 		36AD35EBF5BFB375D79DB8A4 /* ProductDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C94A9E8A16D0BD245560271 /* ProductDetailView.swift */; };
+		3CC5B7EFBB99F87BE72A6314 /* TodoReminders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70CEA9B7E371933331BAF817 /* TodoReminders.swift */; };
 		3D7CCC7E2B721764C6F0775F /* AppShellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDC3E0EDEC33E7E11CA07ABA /* AppShellView.swift */; };
 		3FFEEAF1A9B6B6BDFE71F486 /* ShipmentSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 838F778D23821D8070A2998D /* ShipmentSection.swift */; };
 		43B8AFED0B957D44F589D47B /* OrderRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A38B148F1D7F44960FCDDAF5 /* OrderRow.swift */; };
@@ -100,6 +101,7 @@
 		641819237C5FD784961C5FF0 /* AddressEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressEditView.swift; sourceTree = "<group>"; };
 		654E3596012F9DD7C9F17709 /* Order.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Order.swift; sourceTree = "<group>"; };
 		6DD138DB61BE48C948317EE7 /* SalesSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesSummary.swift; sourceTree = "<group>"; };
+		70CEA9B7E371933331BAF817 /* TodoReminders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoReminders.swift; sourceTree = "<group>"; };
 		7D13E7945058B1045F0CF6C9 /* OrdersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdersViewModel.swift; sourceTree = "<group>"; };
 		80EA85FE78732A215B73B89F /* CustomersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomersViewModel.swift; sourceTree = "<group>"; };
 		82D7AB5BC8CAF83C70C350A7 /* TodoDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoDetailView.swift; sourceTree = "<group>"; };
@@ -255,6 +257,7 @@
 			children = (
 				82D7AB5BC8CAF83C70C350A7 /* TodoDetailView.swift */,
 				E99301A3C2743C9F654B33F3 /* TodoFormView.swift */,
+				70CEA9B7E371933331BAF817 /* TodoReminders.swift */,
 				5EBE69D2AEB00CF78E2A0CA5 /* TodosListView.swift */,
 				07E85707173772D76D01FE8D /* TodosViewModel.swift */,
 			);
@@ -439,6 +442,7 @@
 				368DEC50EDDF801C4F3162DE /* Todo.swift in Sources */,
 				7060D96678348DC396CC5416 /* TodoDetailView.swift in Sources */,
 				4F88D92B0DAE7EB01DA08F80 /* TodoFormView.swift in Sources */,
+				3CC5B7EFBB99F87BE72A6314 /* TodoReminders.swift in Sources */,
 				4C6073883CC4A65CA663CB08 /* TodoRequests.swift in Sources */,
 				E01B09559FDD305A17DA7E9F /* TodosListView.swift in Sources */,
 				9718224A63BB529146A877B3 /* TodosViewModel.swift in Sources */,

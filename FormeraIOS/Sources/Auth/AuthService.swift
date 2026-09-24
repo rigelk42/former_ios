@@ -76,6 +76,7 @@ final class AuthService {
             _ = try? await apiClient.post("auth/logout/", body: RefreshRequest(refresh: refresh), authenticated: false)
         }
         tokenStore.clear()
+        await TodoReminders.clear()
         status = .unauthenticated
     }
 }

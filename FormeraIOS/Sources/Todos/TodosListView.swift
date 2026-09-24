@@ -6,6 +6,7 @@ import SwiftUI
 struct TodosListView: View {
     @State private var viewModel = TodosViewModel()
     @State private var isCreatePresented = false
+    @Environment(AuthService.self) private var auth
 
     var body: some View {
         List {
@@ -18,6 +19,12 @@ struct TodosListView: View {
             }
         }
         .listStyle(.insetGrouped)
+        // Re-syncs this phone's due-time reminders whenever the list
+        // changes (load, create, edit, delete) -- see TodoReminders.
+        .task(id: viewModel.todos) {
+            guard viewModel.hasLoaded, case .authenticated(let user) = auth.status else { return }
+            await TodoReminders.sync(viewModel.todos, userId: user.id)
+        }
         .safeAreaInset(edge: .top) {
             TodoFiltersBar(
                 doneFilter: $viewModel.doneFilter,
@@ -189,4 +196,5 @@ private struct MemberFilterChip: View {
 
 #Preview {
     NavigationStack { TodosListView() }
+        .environment(AuthService())
 }

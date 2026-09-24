@@ -30,6 +30,10 @@ final class TodosViewModel {
     var memberFilter: MemberColor?
 
     private var hasLoadedOnce = false
+    /// True once the list has loaded at least once -- so reminder syncing
+    /// (see TodosListView) doesn't clear everything off the empty list
+    /// that exists before the first load.
+    var hasLoaded: Bool { hasLoadedOnce }
     private let apiClient: APIClient
 
     init(apiClient: APIClient = APIClient()) {
