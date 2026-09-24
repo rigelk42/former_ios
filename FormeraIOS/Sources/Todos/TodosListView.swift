@@ -97,9 +97,9 @@ private struct TodoRow: View {
                 }
             }
 
-            if let dueDate = todo.dueDate {
+            if let dueLabel = todo.dueLabel {
                 Spacer(minLength: 8)
-                Text(dueDate.formattedAsPlainDate())
+                Text(dueLabel)
                     .font(.caption)
                     .foregroundStyle(todo.isOverdue ? .red : .secondary)
                     .fixedSize()

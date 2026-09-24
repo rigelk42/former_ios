@@ -64,3 +64,20 @@ extension String {
         return parsed.formatted(date: dateStyle, time: .omitted)
     }
 }
+
+/// due_time is a DRF TimeField ("14:30:00") -- a wall-clock time with no
+/// date or time zone, read in the phone's own calendar like DRFPlainDate.
+enum DRFPlainTime {
+    /// "HH:MM" -- DRF accepts it and stores seconds as 00.
+    static func format(_ date: Date) -> String {
+        let components = Calendar.current.dateComponents([.hour, .minute], from: date)
+        return String(format: "%02d:%02d", components.hour ?? 0, components.minute ?? 0)
+    }
+
+    /// `date`'s calendar day at `time`'s hour and minute.
+    static func combine(date: Date, time: String) -> Date? {
+        let parts = time.split(separator: ":").compactMap { Int($0) }
+        guard parts.count >= 2 else { return nil }
+        return Calendar.current.date(bySettingHour: parts[0], minute: parts[1], second: 0, of: date)
+    }
+}

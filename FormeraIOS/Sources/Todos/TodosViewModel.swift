@@ -56,9 +56,13 @@ final class TodosViewModel {
         // first, so a freshly-created todo lands at the top of its group
         // -- e.g. above other undated todos -- rather than in an
         // arbitrary spot.
+        // Within the same day, a todo with a due time comes before one
+        // without, earliest time first ("HH:MM:SS" also orders as a string).
         .sorted { lhs, rhs in
             switch (lhs.dueDate, rhs.dueDate) {
             case let (lhsDate?, rhsDate?) where lhsDate != rhsDate: lhsDate < rhsDate
+            case let (lhsDate?, rhsDate?) where lhsDate == rhsDate && lhs.dueTime != rhs.dueTime:
+                (lhs.dueTime ?? "~") < (rhs.dueTime ?? "~")
             case (nil, _?): false
             case (_?, nil): true
             default: lhs.createdAt > rhs.createdAt

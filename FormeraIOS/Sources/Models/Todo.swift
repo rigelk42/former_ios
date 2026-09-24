@@ -51,6 +51,10 @@ struct Todo: Decodable, Identifiable, Hashable {
     /// timestamp. Distinct from remindAt below: this is when the todo is
     /// due, not when it starts being worth showing at all.
     let dueDate: String?
+    /// Optional time of day on dueDate -- "HH:MM:SS", a DRF TimeField (see
+    /// DRFPlainTime), read as the phone's local time. Always nil when
+    /// dueDate is nil.
+    let dueTime: String?
     /// Server-managed "don't surface until" date for auto-created
     /// reminders (e.g. the order-finalize follow-up) -- not user-editable
     /// anywhere in this app today.
@@ -60,10 +64,42 @@ struct Todo: Decodable, Identifiable, Hashable {
     let createdAt: String
     let updatedAt: String
 
-    /// Has a due date that's passed and isn't done yet -- drives the
-    /// overdue styling in TodosListView/TodoDetailView.
+    /// dueDate combined with dueTime, in the phone's local time zone -- nil
+    /// when there's no due time (a date-only due date has no exact moment).
+    var dueDateTime: Date? {
+        guard let dueDate, let dueTime, let date = DRFPlainDate.parse(dueDate) else { return nil }
+        return DRFPlainTime.combine(date: date, time: dueTime)
+    }
+
+    /// Has a due date (and time, if set) that's passed and isn't done yet
+    /// -- drives the overdue styling in TodosListView/TodoDetailView.
     var isOverdue: Bool {
-        guard !isDone, let dueDate, let date = DRFPlainDate.parse(dueDate) else { return false }
+        guard !isDone else { return false }
+        if let dueDateTime { return dueDateTime < Date() }
+        guard let dueDate, let date = DRFPlainDate.parse(dueDate) else { return false }
         return date < Calendar.current.startOfDay(for: Date())
+    }
+
+    /// "Oct 1, 2026" or "Oct 1, 2026, 2:30 PM" -- for the list row.
+    var dueLabel: String? {
+        guard let dueDate else { return nil }
+        if let dueDateTime {
+            return dueDateTime.formatted(date: .abbreviated, time: .shortened)
+        }
+        return dueDate.formattedAsPlainDate()
+    }
+}
+
+/// Quick-pick notes offered next to the free-typing notes field on a todo.
+/// Placeholder wording until the team sends their preferred list -- edit
+/// here to change what shows up in the menu.
+enum TodoNotePresets {
+    static let all = ["Check in", "Follow up", "Call back", "Waiting on payment"]
+
+    /// Appends `preset` to `notes` on its own line, or uses it as the whole
+    /// note when notes is empty.
+    static func apply(_ preset: String, to notes: String) -> String {
+        let trimmed = notes.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? preset : trimmed + "\n" + preset
     }
 }

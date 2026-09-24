@@ -10,6 +10,8 @@ struct TodoFormView: View {
     @State private var notes = ""
     @State private var hasDueDate = false
     @State private var dueDate = Date()
+    @State private var hasDueTime = false
+    @State private var dueTime = Date()
     @State private var mentionedIds: Set<Int> = []
     @State private var isSubmitting = false
     @State private var errorMessage: String?
@@ -21,15 +23,25 @@ struct TodoFormView: View {
                     TextField("What needs doing?", text: $title)
                 }
 
-                Section("Notes") {
+                Section {
                     TextField("Notes", text: $notes, axis: .vertical)
                         .lineLimit(3...10)
+                } header: {
+                    HStack {
+                        Text("Notes")
+                        Spacer()
+                        NotePresetMenu { notes = TodoNotePresets.apply($0, to: notes) }
+                    }
                 }
 
                 Section {
                     Toggle("Due Date", isOn: $hasDueDate.animation())
                     if hasDueDate {
                         DatePicker("Date", selection: $dueDate, displayedComponents: .date)
+                        Toggle("Time", isOn: $hasDueTime.animation())
+                        if hasDueTime {
+                            DatePicker("Time", selection: $dueTime, displayedComponents: .hourAndMinute)
+                        }
                     }
                 }
 
@@ -84,6 +96,7 @@ struct TodoFormView: View {
             title: title.trimmingCharacters(in: .whitespacesAndNewlines),
             notes: notes.trimmingCharacters(in: .whitespacesAndNewlines),
             dueDate: hasDueDate ? DRFPlainDate.format(dueDate) : nil,
+            dueTime: hasDueDate && hasDueTime ? DRFPlainTime.format(dueTime) : nil,
             mentions: Array(mentionedIds)
         )
         do {
@@ -91,6 +104,24 @@ struct TodoFormView: View {
             dismiss()
         } catch {
             errorMessage = apiErrorMessage(error)
+        }
+    }
+}
+
+/// "Presets" menu shown in a todo's Notes header -- picking one hands it to
+/// `onPick` (see TodoNotePresets.apply).
+struct NotePresetMenu: View {
+    var onPick: (String) -> Void
+
+    var body: some View {
+        Menu {
+            ForEach(TodoNotePresets.all, id: \.self) { preset in
+                Button(preset) { onPick(preset) }
+            }
+        } label: {
+            Label("Presets", systemImage: "text.badge.plus")
+                .font(.subheadline)
+                .textCase(nil)
         }
     }
 }

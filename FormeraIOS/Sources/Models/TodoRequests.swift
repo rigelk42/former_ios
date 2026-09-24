@@ -5,6 +5,8 @@ struct CreateTodoInput: Encodable {
     var notes: String = ""
     /// "YYYY-MM-DD" (see DRFPlainDate), or nil for no due date.
     var dueDate: String?
+    /// "HH:MM" (see DRFPlainTime), or nil for no due time. Requires dueDate.
+    var dueTime: String?
     var mentions: [Int]
 }
 
@@ -19,10 +21,13 @@ struct UpdateTodoInput: Encodable {
     var notes: String?
     var isDone: Bool?
     var dueDate: Omittable<String> = .omit
+    /// Same Omittable treatment as dueDate. Clearing dueDate clears the
+    /// time server-side too, so there's no need to send both.
+    var dueTime: Omittable<String> = .omit
     var mentions: [Int]?
 
     private enum CodingKeys: String, CodingKey {
-        case title, notes, isDone, dueDate, mentions
+        case title, notes, isDone, dueDate, dueTime, mentions
     }
 
     func encode(to encoder: Encoder) throws {
@@ -31,14 +36,16 @@ struct UpdateTodoInput: Encodable {
         try container.encodeIfPresent(notes, forKey: .notes)
         try container.encodeIfPresent(isDone, forKey: .isDone)
         try container.encodeIfPresent(mentions, forKey: .mentions)
-        switch dueDate {
-        case .omit:
-            break
-        case .value(let value):
-            if let value {
-                try container.encode(value, forKey: .dueDate)
-            } else {
-                try container.encodeNil(forKey: .dueDate)
+        for (field, key) in [(dueDate, CodingKeys.dueDate), (dueTime, CodingKeys.dueTime)] {
+            switch field {
+            case .omit:
+                break
+            case .value(let value):
+                if let value {
+                    try container.encode(value, forKey: key)
+                } else {
+                    try container.encodeNil(forKey: key)
+                }
             }
         }
     }

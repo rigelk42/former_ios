@@ -17,6 +17,8 @@ struct TodoDetailView: View {
     @State private var errorMessage: String?
     @State private var hasDueDate: Bool
     @State private var dueDate: Date
+    @State private var hasDueTime: Bool
+    @State private var dueTime: Date
     @State private var title: String
     @State private var notes: String
     @FocusState private var isTitleFocused: Bool
@@ -29,6 +31,8 @@ struct TodoDetailView: View {
         let parsedDueDate = todo.dueDate.flatMap(DRFPlainDate.parse)
         _hasDueDate = State(initialValue: parsedDueDate != nil)
         _dueDate = State(initialValue: parsedDueDate ?? Date())
+        _hasDueTime = State(initialValue: todo.dueDateTime != nil)
+        _dueTime = State(initialValue: todo.dueDateTime ?? Date())
         _title = State(initialValue: todo.title)
         _notes = State(initialValue: todo.notes)
     }
@@ -58,18 +62,28 @@ struct TodoDetailView: View {
                 }
             }
 
-            Section("Notes") {
+            Section {
                 TextField("Notes", text: $notes, axis: .vertical)
                     .lineLimit(3...10)
                     .focused($isNotesFocused)
                     .onChange(of: isNotesFocused) { _, isFocused in
                         if !isFocused { Task { await updateNotes() } }
                     }
+            } header: {
+                HStack {
+                    Text("Notes")
+                    Spacer()
+                    NotePresetMenu { preset in
+                        notes = TodoNotePresets.apply(preset, to: notes)
+                        Task { await updateNotes() }
+                    }
+                }
             }
 
             Section {
                 Toggle("Due Date", isOn: $hasDueDate.animation())
                     .onChange(of: hasDueDate) { _, newValue in
+                        if !newValue { hasDueTime = false }
                         Task { await updateDueDate(newValue ? dueDate : nil) }
                     }
                 if hasDueDate {
@@ -77,6 +91,16 @@ struct TodoDetailView: View {
                         .onChange(of: dueDate) { _, newValue in
                             Task { await updateDueDate(newValue) }
                         }
+                    Toggle("Time", isOn: $hasDueTime.animation())
+                        .onChange(of: hasDueTime) { _, newValue in
+                            Task { await updateDueTime(newValue ? dueTime : nil) }
+                        }
+                    if hasDueTime {
+                        DatePicker("Time", selection: $dueTime, displayedComponents: .hourAndMinute)
+                            .onChange(of: dueTime) { _, newValue in
+                                Task { await updateDueTime(newValue) }
+                            }
+                    }
                 }
             } footer: {
                 if todo.isOverdue {
@@ -184,6 +208,18 @@ struct TodoDetailView: View {
         }
     }
 
+    private func updateDueTime(_ time: Date?) async {
+        // Turning the due date off already cleared the time server-side.
+        guard hasDueDate || time != nil else { return }
+        do {
+            todo = try await viewModel.update(
+                todo, input: UpdateTodoInput(dueTime: .value(time.map(DRFPlainTime.format)))
+            )
+        } catch {
+            errorMessage = apiErrorMessage(error)
+        }
+    }
+
     private func toggleMention(_ member: TeamMember) async {
         isMentionUpdating = true
         defer { isMentionUpdating = false }
@@ -219,6 +255,7 @@ struct TodoDetailView: View {
                 notes: "",
                 isDone: false,
                 dueDate: nil,
+                dueTime: nil,
                 remindAt: nil,
                 mentions: [],
                 createdBy: nil,
