@@ -100,6 +100,18 @@ final class OrdersViewModel {
         return updated
     }
 
+    /// Sends only notes (see UpdateOrderNotesInput) -- same reasoning as
+    /// updateOrderDate(_:orderDate:) above.
+    func updateOrderNotes(_ id: Int, notes: String) async throws -> Order {
+        let updated = try await apiClient.patch(
+            "orders/\(id)/",
+            body: UpdateOrderNotesInput(notes: notes),
+            as: Order.self
+        )
+        replace(updated)
+        return updated
+    }
+
     func updateLineItemPrice(orderId: Int, itemId: Int, unitPrice: Double) async throws -> Order {
         let updated = try await apiClient.patch(
             "orders/\(orderId)/items/\(itemId)/",

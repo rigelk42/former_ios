@@ -39,6 +39,12 @@ struct OrderDetailView: View {
     @State private var editingDate = Date()
     @State private var isSavingDate = false
 
+    // Notes follow the same rule as the date above -- editable even once
+    // the order is finalized or has an active shipping label.
+    @State private var isEditingNotes = false
+    @State private var editingNotes = ""
+    @State private var isSavingNotes = false
+
     @Environment(\.dismiss) private var dismiss
 
     init(order: Order, viewModel: OrdersViewModel) {
@@ -114,11 +120,27 @@ struct OrderDetailView: View {
                 }
             }
 
-            Section("Notes") {
-                if order.notes.isEmpty {
-                    Text("No notes").foregroundStyle(.secondary)
-                } else {
-                    Text(order.notes)
+            Section {
+                Button {
+                    editingNotes = order.notes
+                    isEditingNotes = true
+                } label: {
+                    if order.notes.isEmpty {
+                        Text("No notes").foregroundStyle(.secondary)
+                    } else {
+                        Text(order.notes).foregroundStyle(.primary)
+                    }
+                }
+            } header: {
+                HStack {
+                    Text("Notes")
+                    Spacer()
+                    Button("Edit") {
+                        editingNotes = order.notes
+                        isEditingNotes = true
+                    }
+                    .font(.subheadline)
+                    .textCase(nil)
                 }
             }
 
@@ -241,6 +263,27 @@ struct OrderDetailView: View {
             }
             .presentationDetents([.medium])
         }
+        .sheet(isPresented: $isEditingNotes) {
+            NavigationStack {
+                Form {
+                    TextField("Notes", text: $editingNotes, axis: .vertical)
+                        .lineLimit(4...12)
+                }
+                .navigationTitle("Edit Notes")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { isEditingNotes = false }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Save") { Task { await saveNotes() } }
+                            .disabled(isSavingNotes)
+                    }
+                }
+                .disabled(isSavingNotes)
+            }
+            .presentationDetents([.medium, .large])
+        }
         .toast($errorMessage)
     }
 
@@ -294,6 +337,17 @@ struct OrderDetailView: View {
         guard let editingItem, let price = Double(editingPriceText) else { return }
         do {
             order = try await viewModel.updateLineItemPrice(orderId: order.id, itemId: editingItem.id, unitPrice: price)
+        } catch {
+            errorMessage = apiErrorMessage(error)
+        }
+    }
+
+    private func saveNotes() async {
+        isSavingNotes = true
+        defer { isSavingNotes = false }
+        do {
+            order = try await viewModel.updateOrderNotes(order.id, notes: editingNotes)
+            isEditingNotes = false
         } catch {
             errorMessage = apiErrorMessage(error)
         }

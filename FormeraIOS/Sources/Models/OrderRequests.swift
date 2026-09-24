@@ -67,6 +67,14 @@ struct UpdateOrderDateInput: Encodable {
     var orderDate: String
 }
 
+/// Minimal PATCH payload for editing just the order's notes -- like
+/// UpdateOrderDateInput above, notes stay editable after a shipping label
+/// exists (see OrderUpdateSerializer.validate()), so this is sent on its
+/// own rather than through UpdateOrderInput.
+struct UpdateOrderNotesInput: Encodable {
+    var notes: String
+}
+
 /// Every field is optional -- send only what's changing. Locked
 /// server-side once the order has an active shipping label (see
 /// OrderDetailView.patch/OrderUpdateSerializer) -- void the shipment first
