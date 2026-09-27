@@ -33,7 +33,12 @@ final class AuthService {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in self?.status = .unauthenticated }
+            Task { @MainActor in
+                // Same as logout(): the next person to sign in on this
+                // phone shouldn't get the expired user's reminders.
+                await TodoReminders.clear()
+                self?.status = .unauthenticated
+            }
         }
     }
 
@@ -54,6 +59,7 @@ final class AuthService {
             status = .authenticated(user)
         } catch {
             tokenStore.clear()
+            await TodoReminders.clear()
             status = .unauthenticated
         }
     }
