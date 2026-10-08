@@ -59,6 +59,11 @@ struct TodoDetailView: View {
                         .onChange(of: isTitleFocused) { _, isFocused in
                             if !isFocused { Task { await updateTitle() } }
                         }
+                        // The server rewrites a trailing due date in the
+                        // title when the due date changes.
+                        .onChange(of: todo.title) { _, newTitle in
+                            if !isTitleFocused { title = newTitle }
+                        }
                 }
             }
 

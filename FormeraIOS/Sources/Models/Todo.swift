@@ -102,4 +102,11 @@ enum TodoNotePresets {
         let trimmed = notes.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? preset : trimmed + "\n" + preset
     }
+
+    /// Puts `preset` in front of `title`, separated by a space, or uses it
+    /// as the whole title when title is empty.
+    static func prefix(_ preset: String, to title: String) -> String {
+        let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? preset : preset + " " + trimmed
+    }
 }

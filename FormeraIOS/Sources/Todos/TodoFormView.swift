@@ -21,17 +21,19 @@ struct TodoFormView: View {
             Form {
                 Section {
                     TextField("What needs doing?", text: $title)
-                }
-
-                Section {
-                    TextField("Notes", text: $notes, axis: .vertical)
-                        .lineLimit(3...10)
                 } header: {
                     HStack {
-                        Text("Notes")
                         Spacer()
-                        NotePresetMenu { notes = TodoNotePresets.apply($0, to: notes) }
+                        NotePresetMenu { preset in
+                            title = TodoNotePresets.prefix(preset, to: title)
+                            notes = TodoNotePresets.apply(preset, to: notes)
+                        }
                     }
+                }
+
+                Section("Notes") {
+                    TextField("Notes", text: $notes, axis: .vertical)
+                        .lineLimit(3...10)
                 }
 
                 Section {
@@ -108,8 +110,9 @@ struct TodoFormView: View {
     }
 }
 
-/// "Presets" menu shown in a todo's Notes header -- picking one hands it to
-/// `onPick` (see TodoNotePresets.apply).
+/// "Presets" menu -- picking one hands it to `onPick`. The new-todo form
+/// prefixes it to the title (TodoNotePresets.prefix) and appends it to the
+/// notes (TodoNotePresets.apply); the detail view only appends to the notes.
 struct NotePresetMenu: View {
     var onPick: (String) -> Void
 

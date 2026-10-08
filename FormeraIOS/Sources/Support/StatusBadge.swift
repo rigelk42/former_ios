@@ -14,6 +14,7 @@ struct StatusBadge: View {
         case .standby: color = .orange
         case .venmo: color = .cyan
         case .referral: color = .purple
+        case .handDeliver: color = .mint
         }
     }
 

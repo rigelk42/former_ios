@@ -9,6 +9,7 @@ enum PaymentMethod: String, Codable, CaseIterable, Identifiable {
     case standby
     case venmo
     case referral
+    case handDeliver = "hand_deliver"
 
     var id: String { rawValue }
 
@@ -19,6 +20,7 @@ enum PaymentMethod: String, Codable, CaseIterable, Identifiable {
         case .standby: "Standby"
         case .venmo: "Venmo"
         case .referral: "Referral"
+        case .handDeliver: "Hand Deliver/Cash App Pickup"
         }
     }
 }
