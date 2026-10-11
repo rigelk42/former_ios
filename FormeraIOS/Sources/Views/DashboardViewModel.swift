@@ -15,6 +15,10 @@ final class DashboardViewModel {
     private(set) var isLoading = false
     private(set) var errorMessage: String?
 
+    /// Last 10 weeks of money sold, oldest first (GET /api/orders/weekly-sales/).
+    private(set) var weeklySales: [WeeklySalesItem] = []
+    private(set) var weeklyErrorMessage: String?
+
     private let apiClient: APIClient
 
     init(apiClient: APIClient = APIClient()) {
@@ -35,6 +39,15 @@ final class DashboardViewModel {
             items = summary.items
         } catch {
             errorMessage = apiErrorMessage(error)
+        }
+    }
+
+    func loadWeekly() async {
+        weeklyErrorMessage = nil
+        do {
+            weeklySales = try await apiClient.get("orders/weekly-sales/", as: WeeklySales.self).weeks
+        } catch {
+            weeklyErrorMessage = apiErrorMessage(error)
         }
     }
 
